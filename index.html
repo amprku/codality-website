@@ -1849,22 +1849,36 @@
                 return circle;
             }
             
-            createCrosshairLine(length, width) {
-                const geometry = new THREE.PlaneGeometry(length, width);
-                
-                // Create textured material with animated properties
-                const material = new THREE.MeshBasicMaterial({ 
+            createCrosshairLine(length, width, gap = 0.4) {
+                // Create two segments with a gap in the center
+                const group = new THREE.Group();
+                const segmentLength = (length - gap) / 2;
+                // Left/Top segment
+                const geometry1 = new THREE.PlaneGeometry(segmentLength, width);
+                const material1 = new THREE.MeshBasicMaterial({ 
                     color: 0xffffff,
                     transparent: true,
                     opacity: 0.95
                 });
-                
-                const line = new THREE.Mesh(geometry, material);
-                
-                // Add animation properties
-                line.userData = {
+                const mesh1 = new THREE.Mesh(geometry1, material1);
+                // Right/Bottom segment
+                const geometry2 = new THREE.PlaneGeometry(segmentLength, width);
+                const material2 = new THREE.MeshBasicMaterial({ 
+                    color: 0xffffff,
+                    transparent: true,
+                    opacity: 0.95
+                });
+                const mesh2 = new THREE.Mesh(geometry2, material2);
+                // Position segments
+                mesh1.position.x = -(gap / 2 + segmentLength / 2);
+                mesh2.position.x = (gap / 2 + segmentLength / 2);
+                group.add(mesh1);
+                group.add(mesh2);
+                // Add animation properties to group for compatibility
+                group.userData = {
                     originalLength: length,
                     originalWidth: width,
+                    gap: gap,
                     pulseSpeed: 0.015 + Math.random() * 0.01,
                     pulsePhase: Math.random() * Math.PI * 2,
                     rotationSpeed: 0.003 + Math.random() * 0.005,
@@ -1873,8 +1887,7 @@
                     waveSpeed: 0.02 + Math.random() * 0.01,
                     wavePhase: Math.random() * Math.PI * 2
                 };
-                
-                return line;
+                return group;
             }
             
             createCenterDot() {
@@ -1932,20 +1945,28 @@
                 this.logoGroup.add(this.innerRing);
                 
                 // Create crosshair circles
-                this.middleCircle = this.createCrosshairCircle(2.4, 0.05);
-                this.middleCircle.position.z = 0.1;
-                this.logoGroup.add(this.middleCircle);
-                
-                this.innerCircle = this.createCrosshairCircle(1.6, 0.04);
-                this.innerCircle.position.z = 0.2;
-                this.logoGroup.add(this.innerCircle);
+                // Small inner circle at the gap
+                this.innerGapCircle = this.createCrosshairCircle(0.6, 0.04); // aligns with gap start
+                this.innerGapCircle.position.z = 0.15;
+                this.logoGroup.add(this.innerGapCircle);
+
+                // Main outer circle just inside the line ends
+                this.outerMainCircle = this.createCrosshairCircle(2.2, 0.05); // smaller, inside the lines
+                this.outerMainCircle.position.z = 0.12;
+                this.logoGroup.add(this.outerMainCircle);
+
+                // Supplemental, less pronounced outer circle, with a bigger gap
+                this.outerSubtleCircle = this.createCrosshairCircle(1.7, 0.03); // much smaller, bigger gap
+                this.outerSubtleCircle.material.opacity = 0.25;
+                this.outerSubtleCircle.position.z = 0.11;
+                this.logoGroup.add(this.outerSubtleCircle);
                 
                 // Create crosshair lines
-                this.horizontalLine = this.createCrosshairLine(6, 0.2);
+                this.horizontalLine = this.createCrosshairLine(6, 0.2, 1.2); // increase gap to 1.2 units
                 this.horizontalLine.position.z = 0.3;
                 this.logoGroup.add(this.horizontalLine);
-                
-                this.verticalLine = this.createCrosshairLine(0.2, 6);
+                this.verticalLine = this.createCrosshairLine(6, 0.2, 1.2); // increase gap to 1.2 units
+                this.verticalLine.rotation.z = Math.PI / 2;
                 this.verticalLine.position.z = 0.3;
                 this.logoGroup.add(this.verticalLine);
                 
@@ -2179,8 +2200,9 @@
                     this.outerRing.rotation.z += 0.02;
                     this.middleRing.rotation.z -= 0.025;
                     this.innerRing.rotation.z += 0.03;
-                    this.middleCircle.rotation.z += 0.015;
-                    this.innerCircle.rotation.z -= 0.02;
+                    this.innerGapCircle.rotation.z += 0.015;
+                    this.outerMainCircle.rotation.z -= 0.02;
+                    this.outerSubtleCircle.rotation.z += 0.01;
                     
                     // Subtle pulsing effect
                     const scale = 1 + Math.sin(this.time * 2) * 0.02;
@@ -2222,8 +2244,9 @@
                     this.outerRing.rotation.z += 0.003;
                     this.middleRing.rotation.z -= 0.002;
                     this.innerRing.rotation.z += 0.004;
-                    this.middleCircle.rotation.z += 0.0015;
-                    this.innerCircle.rotation.z -= 0.002;
+                    this.innerGapCircle.rotation.z += 0.0015;
+                    this.outerMainCircle.rotation.z -= 0.002;
+                    this.outerSubtleCircle.rotation.z += 0.001;
                     
                     // Return to normal scale
                     const targetScale = 1;
@@ -2271,7 +2294,7 @@
             
             updateCrosshairAnimations() {
                 // Animate crosshair circles
-                [this.middleCircle, this.innerCircle].forEach(circle => {
+                [this.innerGapCircle, this.outerMainCircle, this.outerSubtleCircle].forEach(circle => {
                     if (circle && circle.userData) {
                         const data = circle.userData;
                         
@@ -2313,21 +2336,21 @@
                         const pulse = Math.sin(this.time * data.pulseSpeed + data.pulsePhase) * 0.05;
                         const scale = 1 + pulse;
                         
-                        if (line === this.horizontalLine) {
-                            line.scale.x = scale;
-                        } else {
-                            line.scale.y = scale;
-                        }
-                        
-                        // Opacity pulsing
-                        line.material.opacity = 0.7 + Math.sin(this.time * data.opacitySpeed + data.opacityPhase) * 0.25;
-                        
+                        line.scale.x = scale;
+                        // Opacity pulsing for both segments
+                        line.children.forEach(segment => {
+                            segment.material.opacity = 0.7 + Math.sin(this.time * data.opacitySpeed + data.opacityPhase) * 0.25;
+                        });
                         // Color variation based on animation state
                         if (this.isAnimating) {
                             const hue = Math.max(0, Math.min(60, 15 + Math.sin(this.time * 2) * 15)); // Red-yellow range
-                            line.material.color.setHSL(hue / 360, 0.8, 0.7);
+                            line.children.forEach(segment => {
+                                segment.material.color.setHSL(hue / 360, 0.8, 0.7);
+                            });
                         } else {
-                            line.material.color.lerp(new THREE.Color(0xffffff), 0.05);
+                            line.children.forEach(segment => {
+                                segment.material.color.lerp(new THREE.Color(0xffffff), 0.05);
+                            });
                         }
                     }
                 });
