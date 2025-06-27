@@ -6,7 +6,7 @@
     <title>Codality - Elite Software Engineering</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Aldrich:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Aldrich:wght@400;700&family=Tilt+Neon:wght@400;500;600&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
         * {
@@ -16,7 +16,7 @@
         }
 
         body {
-            font-family: 'Aldrich', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: 'Tilt Neon', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: #0a0a0a;
             color: #ffffff;
             overflow-x: hidden;
@@ -84,7 +84,7 @@
 
         .container {
             position: relative;
-            z-index: 2;
+            z-index: 3;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -99,7 +99,7 @@
             width: 100vw;
             height: 100vh;
             opacity: 0.2;
-            z-index: 1;
+            z-index: 0;
             pointer-events: none;
         }
 
@@ -151,7 +151,7 @@
             height: 2px;
             background: linear-gradient(90deg, transparent, rgba(255, 119, 0, 0.4), rgba(255, 255, 255, 0.3), rgba(255, 119, 0, 0.4), transparent);
             animation: scan 3s linear infinite;
-            z-index: 10;
+            z-index: 4;
             opacity: 0.2;
             pointer-events: none;
             box-shadow: 0 0 5px rgba(255, 119, 0, 0.3);
@@ -207,7 +207,7 @@
         }
 
         .nav-links a {
-            color: #d4d4d4;
+            color: #e8e8e8;
             text-decoration: none;
             font-weight: 500;
             transition: all 0.3s ease;
@@ -265,6 +265,7 @@
 
         /* Enhanced typography */
         .hero h1 {
+            font-family: 'Aldrich', sans-serif;
             font-size: clamp(2.5rem, 6vw, 4.5rem);
             font-weight: 800;
             margin-bottom: 1.5rem;
@@ -284,14 +285,14 @@
 
         .hero-subtitle {
             font-size: 1.3rem;
-            color: #e5e5e5;
+            color: #f0f0f0;
             margin-bottom: 3rem;
             font-weight: 400;
         }
 
         .hero-description {
             font-size: 1.1rem;
-            color: #d4d4d4;
+            color: #e8e8e8;
             margin-bottom: 3rem;
             max-width: 600px;
             margin-left: auto;
@@ -471,6 +472,7 @@
         }
 
         .section-header h2 {
+            font-family: 'Aldrich', sans-serif;
             font-size: clamp(2rem, 4vw, 3rem);
             font-weight: 700;
             background: linear-gradient(135deg, #ffffff 0%, #ff7700 50%, #dc2626 100%);
@@ -482,7 +484,7 @@
 
         .section-header p {
             font-size: 1.2rem;
-            color: #a1a1aa;
+            color: #c8c8c8;
             max-width: 600px;
             margin: 0 auto;
         }
@@ -557,6 +559,7 @@
         }
 
         .member-info h3 {
+            font-family: 'Aldrich', sans-serif;
             font-size: 1.5rem;
             font-weight: 600;
             color: #ffffff;
@@ -572,12 +575,12 @@
 
         .member-experience {
             font-size: 0.9rem;
-            color: #d4d4d4;
+            color: #e0e0e0;
             font-weight: 500;
         }
 
         .member-description {
-            color: #a1a1aa;
+            color: #c8c8c8;
             line-height: 1.6;
             font-size: 1rem;
         }
@@ -626,6 +629,7 @@
         }
 
         .contact-intro h3 {
+            font-family: 'Aldrich', sans-serif;
             font-size: 2rem;
             font-weight: 700;
             margin-bottom: 0.5rem;
@@ -633,7 +637,7 @@
 
         .contact-intro p {
             font-size: 1.2rem;
-            color: #71717a;
+            color: #c8c8c8;
         }
 
         .contact-form-container {
@@ -673,7 +677,7 @@
 
         .form-group input::placeholder,
         .form-group textarea::placeholder {
-            color: #a1a1aa;
+            color: #b8b8b8;
         }
 
         .form-group label {
@@ -722,7 +726,7 @@
 
         .contact-method p {
             font-size: 1rem;
-            color: #a1a1aa;
+            color: #c8c8c8;
         }
 
         /* Who We Help Section */
@@ -767,9 +771,27 @@
         .industry-icon {
             font-size: 2.5rem;
             margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .industry-icon img {
+            width: 80px;
+            height: 80px;
+            filter: brightness(0) invert(1);
+            opacity: 0.9;
+            transition: all 0.3s ease;
+        }
+
+        .industry-card:hover .industry-icon img {
+            filter: brightness(0) invert(1) sepia(1) saturate(5) hue-rotate(15deg);
+            opacity: 1;
+            transform: scale(1.1);
         }
 
         .industry-card h3 {
+            font-family: 'Aldrich', sans-serif;
             font-size: 1.3rem;
             font-weight: 600;
             color: #ffffff;
@@ -777,7 +799,7 @@
         }
 
         .industry-card p {
-            color: #a1a1aa;
+            color: #c8c8c8;
             line-height: 1.6;
             margin-bottom: 1.5rem;
         }
@@ -788,7 +810,7 @@
         }
 
         .industry-features li {
-            color: #d4d4d4;
+            color: #e0e0e0;
             margin-bottom: 0.5rem;
             padding-left: 1.5rem;
             position: relative;
@@ -836,6 +858,7 @@
         }
 
         .ethos-intro h3 {
+            font-family: 'Aldrich', sans-serif;
             font-size: 1.8rem;
             font-weight: 600;
             color: #ffffff;
@@ -844,7 +867,7 @@
 
         .ethos-intro p {
             font-size: 1.1rem;
-            color: #a1a1aa;
+            color: #c8c8c8;
             max-width: 700px;
             margin: 0 auto;
         }
@@ -875,6 +898,23 @@
         .ethos-icon {
             font-size: 3rem;
             margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ethos-icon img {
+            width: 80px;
+            height: 80px;
+            filter: brightness(0) invert(1);
+            opacity: 0.9;
+            transition: all 0.3s ease;
+        }
+
+        .ethos-card:hover .ethos-icon img {
+            filter: brightness(0) invert(1) sepia(1) saturate(5) hue-rotate(15deg);
+            opacity: 1;
+            transform: scale(1.1);
         }
 
         .ethos-card h4 {
@@ -885,7 +925,7 @@
         }
 
         .ethos-card p {
-            color: #a1a1aa;
+            color: #c8c8c8;
             line-height: 1.6;
         }
 
@@ -919,9 +959,25 @@
 
         .about-intro p {
             font-size: 1.1rem;
-            color: #a1a1aa;
+            color: #c8c8c8;
             max-width: 700px;
             margin: 0 auto;
+        }
+
+        /* Enhanced text legibility overlay */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, transparent 50%),
+                linear-gradient(45deg, transparent 0%, rgba(255, 255, 255, 0.015) 50%, transparent 100%),
+                radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.01) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 2;
         }
     </style>
 </head>
@@ -977,7 +1033,9 @@
                 
                 <div class="industries-grid">
                     <div class="industry-card">
-                        <div class="industry-icon">🏢</div>
+                        <div class="industry-icon">
+                            <img src="assets/small-business.svg" alt="Small Business Icon">
+                        </div>
                         <h3>Small & Midsize Businesses</h3>
                         <p>We help growing teams automate operations, streamline customer interactions, and build tools that scale without the overhead of enterprise bloat.</p>
                         <ul class="industry-features">
@@ -989,7 +1047,9 @@
                     </div>
 
                     <div class="industry-card">
-                        <div class="industry-icon">💰</div>
+                        <div class="industry-icon">
+                            <img src="assets/financial-services.svg" alt="Financial Services Icon">
+                        </div>
                         <h3>Financial Services</h3>
                         <p>We design secure, scalable platforms tailored to the compliance-heavy, fast-moving world of wealth and asset management.</p>
                         <ul class="industry-features">
@@ -1001,7 +1061,9 @@
                     </div>
 
                     <div class="industry-card">
-                        <div class="industry-icon">🏥</div>
+                        <div class="industry-icon">
+                            <img src="assets/insurance.svg" alt="Insurance Icon">
+                        </div>
                         <h3>Insurance</h3>
                         <p>Modern solutions for an industry built on legacy systems.</p>
                         <ul class="industry-features">
@@ -1013,7 +1075,9 @@
                     </div>
 
                     <div class="industry-card">
-                        <div class="industry-icon">🧠</div>
+                        <div class="industry-icon">
+                            <img src="assets/higher-education.svg" alt="Higher Education Icon">
+                        </div>
                         <h3>Higher Education</h3>
                         <p>Tools for institutions that manage people, events, data — and deadlines.</p>
                         <ul class="industry-features">
@@ -1025,7 +1089,9 @@
                     </div>
 
                     <div class="industry-card">
-                        <div class="industry-icon">🏛️</div>
+                        <div class="industry-icon">
+                            <img src="assets/nonprofits.svg" alt="Nonprofits Icon">
+                        </div>
                         <h3>Nonprofits</h3>
                         <p>Mission-focused platforms with the flexibility to grow.</p>
                         <ul class="industry-features">
@@ -1037,7 +1103,9 @@
                     </div>
 
                     <div class="industry-card">
-                        <div class="industry-icon">📱</div>
+                        <div class="industry-icon">
+                            <img src="assets/mobile-app.svg" alt="Mobile App Development Icon">
+                        </div>
                         <h3>Mobile App Development</h3>
                         <p>Apps that connect your business with your customers — seamlessly.</p>
                         <ul class="industry-features">
@@ -1049,7 +1117,9 @@
                     </div>
 
                     <div class="industry-card">
-                        <div class="industry-icon">🆔</div>
+                        <div class="industry-icon">
+                            <img src="assets/certification.svg" alt="Certification Icon">
+                        </div>
                         <h3>Certification & Credentialing Bodies</h3>
                         <p>Standards enforcement is hard. We make it software-friendly.</p>
                         <ul class="industry-features">
@@ -1061,7 +1131,9 @@
                     </div>
 
                     <div class="industry-card">
-                        <div class="industry-icon">🏢</div>
+                        <div class="industry-icon">
+                            <img src="assets/franchises.svg" alt="Franchises Icon">
+                        </div>
                         <h3>Franchises & Multi-Location Businesses</h3>
                         <p>Local autonomy, central control — without compromise.</p>
                         <ul class="industry-features">
@@ -1073,7 +1145,9 @@
                     </div>
 
                     <div class="industry-card">
-                        <div class="industry-icon">⚙️</div>
+                        <div class="industry-icon">
+                            <img src="assets/salesforce.svg" alt="Salesforce Icon">
+                        </div>
                         <h3>Salesforce Customers Ready for Apex Superpowers</h3>
                         <p>Declarative tools are great — until they aren't.</p>
                         <ul class="industry-features">
@@ -1102,27 +1176,27 @@
                     
                     <div class="ethos-grid">
                         <div class="ethos-card">
-                            <div class="ethos-icon">🤖</div>
+                            <div class="ethos-icon">
+                                <img src="assets/thoughtful.svg" alt="Thoughtful Integration Icon">
+                            </div>
                             <h4>Thoughtful Integration</h4>
                             <p>We use AI to accelerate development, not automate decisions. Every line of code is reviewed, tested, and optimized by human engineers who understand your business context.</p>
                         </div>
                         
                         <div class="ethos-card">
-                            <div class="ethos-icon">⚡</div>
+                            <div class="ethos-icon">
+                                <img src="assets/superpower.svg" alt="AI Superpower Icon">
+                            </div>
                             <h4>Where AI Accelerates</h4>
                             <p>Code generation, testing frameworks, documentation, and repetitive tasks. AI handles the grunt work so we can focus on architecture, security, and business logic.</p>
                         </div>
                         
                         <div class="ethos-card">
-                            <div class="ethos-icon">👨‍💻</div>
+                            <div class="ethos-icon">
+                                <img src="assets/hands-on.svg" alt="Hands-On Icon">
+                            </div>
                             <h4>Where We Stay Hands-On</h4>
                             <p>System architecture, security reviews, performance optimization, and business logic. The critical decisions that determine whether your solution succeeds or fails.</p>
-                        </div>
-                        
-                        <div class="ethos-card">
-                            <div class="ethos-icon">📈</div>
-                            <h4>Real Examples</h4>
-                            <p>See how we've used AI to deliver enterprise-grade solutions in weeks instead of months, while maintaining the quality and reliability your business demands.</p>
                         </div>
                     </div>
                     
