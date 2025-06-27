@@ -511,8 +511,8 @@
         }
 
         .member-photo {
-            width: 120px;
-            height: 120px;
+            width: 200px;
+            height: 200px;
             border-radius: 50%;
             background: linear-gradient(135deg, #ff7700, #dc2626);
             display: flex;
@@ -537,6 +537,19 @@
             animation: photoShine 3s ease-in-out infinite;
         }
 
+        .member-photo::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 119, 0, 0.1), rgba(220, 38, 38, 0.05));
+            border-radius: 50%;
+            z-index: 2;
+            pointer-events: none;
+        }
+
         @keyframes photoShine {
             0%, 100% { transform: translateX(-100%); }
             50% { transform: translateX(100%); }
@@ -549,6 +562,19 @@
             border-radius: 50%;
             position: relative;
             z-index: 1;
+            /* Pure black and white filter */
+            filter: grayscale(1);
+            transition: all 0.3s ease;
+            border: 3px solid rgba(255, 119, 0, 0.3);
+            /* Alternative more aggressive filters (uncomment if needed):
+            filter: contrast(1.2) brightness(0.85) saturate(0.7) sepia(0.15) hue-rotate(5deg);
+            */
+        }
+
+        .member-photo:hover img {
+            filter: grayscale(1);
+            transform: scale(1.05);
+            border-color: rgba(255, 119, 0, 0.6);
         }
 
         .member-content {
@@ -1084,8 +1110,8 @@
             }
 
             .member-photo {
-                width: 100px;
-                height: 100px;
+                width: 120px;
+                height: 120px;
             }
 
             .member-content {
@@ -1206,8 +1232,8 @@
             }
 
             .member-photo {
-                width: 80px;
-                height: 80px;
+                width: 100px;
+                height: 100px;
             }
 
             .cta-primary,
@@ -1520,7 +1546,7 @@
 
                         <div class="team-member">
                             <div class="member-photo">
-                                <img src="assets/amit.jpg" alt="Amit Kulkarni">
+                                <img src="assets/amit.png" alt="Amit Kulkarni">
                             </div>
                             <div class="member-content">
                                 <div class="member-info">
