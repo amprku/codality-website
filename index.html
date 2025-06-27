@@ -1,0 +1,2044 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Codality - Elite Software Engineering</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Aldrich:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Aldrich', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0a0a0a;
+            color: #ffffff;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* Subtle texture overlay */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.03) 1px, transparent 0),
+                radial-gradient(circle at 20% 50%, rgba(255, 119, 0, 0.01) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 119, 0, 0.008) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(255, 255, 255, 0.005) 0%, transparent 50%);
+            background-size: 20px 20px, 100% 100%, 100% 100%, 100% 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Enhanced gradient background with more dynamic colors */
+        .gradient-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(-45deg, #0a0a0a, #1a1a1a, #0f0f0f, #1f1f1f, #0a0a0a);
+            background-size: 400% 400%;
+            animation: gradientShift 20s ease infinite;
+            z-index: 0;
+            opacity: 0.7;
+        }
+
+        /* Add a subtle mesh gradient overlay */
+        .gradient-bg::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(255, 119, 0, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 119, 0, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(255, 255, 255, 0.02) 0%, transparent 50%);
+            animation: meshMove 15s ease-in-out infinite;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @keyframes meshMove {
+            0%, 100% { transform: translate(0, 0); }
+            33% { transform: translate(-10px, -10px); }
+            66% { transform: translate(10px, 10px); }
+        }
+
+        .container {
+            position: relative;
+            z-index: 2;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Interactive 3D Logo Background */
+        .background-logo {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100vw;
+            height: 100vh;
+            opacity: 0.2;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .background-logo canvas {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            mix-blend-mode: screen;
+        }
+
+        /* Add energy field effect */
+        .energy-field {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 200px;
+            height: 200px;
+            border: 1px solid rgba(255, 119, 0, 0.3);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .energy-field.active {
+            opacity: 1;
+            animation: energyPulse 1s ease-in-out infinite;
+        }
+
+        @keyframes energyPulse {
+            0%, 100% {
+                transform: translate(-50%, -50%) scale(1);
+                border-color: rgba(255, 119, 0, 0.3);
+            }
+            50% {
+                transform: translate(-50%, -50%) scale(1.1);
+                border-color: rgba(255, 119, 0, 0.8);
+            }
+        }
+
+        /* Enhanced scan line with color variation */
+        .scan-line {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(255, 119, 0, 0.4), rgba(255, 255, 255, 0.3), rgba(255, 119, 0, 0.4), transparent);
+            animation: scan 3s linear infinite;
+            z-index: 10;
+            opacity: 0.2;
+            pointer-events: none;
+            box-shadow: 0 0 5px rgba(255, 119, 0, 0.3);
+        }
+
+        @keyframes scan {
+            0% { transform: translateY(-100vh); }
+            100% { transform: translateY(100vh); }
+        }
+
+        /* Enhanced navigation with glassmorphism */
+        nav {
+            padding: 2rem 4rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.02);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            transition: all 0.3s ease;
+        }
+
+        nav:hover {
+            background: rgba(255, 255, 255, 0.04);
+            border-bottom-color: rgba(255, 119, 0, 0.3);
+        }
+
+        /* Enhanced logo styling */
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo svg {
+            height: 40px;
+            width: auto;
+            transition: all 0.3s ease;
+            filter: drop-shadow(0 0 10px rgba(255, 119, 0, 0.3));
+        }
+
+        .logo:hover svg {
+            transform: scale(1.05);
+            filter: drop-shadow(0 0 20px rgba(255, 119, 0, 0.5));
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: #d4d4d4;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            color: #ffffff;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #ff7700, #ffffff);
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        /* Enhanced hero section */
+        .hero {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem;
+            text-align: center;
+            position: relative;
+            min-height: 100vh;
+        }
+
+        .hero-content {
+            max-width: 800px;
+            animation: fadeInUp 1s ease-out;
+            position: relative;
+            z-index: 3;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Enhanced typography */
+        .hero h1 {
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, #ffffff 0%, #ff7700 50%, #dc2626 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.2;
+            text-shadow: 0 0 30px rgba(255, 119, 0, 0.3);
+            animation: textGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes textGlow {
+            0%, 100% { filter: brightness(1); }
+            50% { filter: brightness(1.1); }
+        }
+
+        .hero-subtitle {
+            font-size: 1.3rem;
+            color: #e5e5e5;
+            margin-bottom: 3rem;
+            font-weight: 400;
+        }
+
+        .hero-description {
+            font-size: 1.1rem;
+            color: #d4d4d4;
+            margin-bottom: 3rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cta-container {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        /* Enhanced CTA buttons */
+        .cta-primary {
+            background: linear-gradient(135deg, #ff7700 0%, #dc2626 100%);
+            color: white;
+            padding: 1.2rem 3rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(255, 119, 0, 0.3);
+        }
+
+        .cta-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .cta-primary:hover::before {
+            left: 100%;
+        }
+
+        .cta-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 20px 40px rgba(255, 119, 0, 0.4);
+        }
+
+        .cta-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: #ffffff;
+            padding: 1.2rem 3rem;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            backdrop-filter: blur(10px);
+        }
+
+        .cta-secondary:hover {
+            border-color: #ff7700;
+            background: rgba(255, 119, 0, 0.1);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(255, 119, 0, 0.2);
+        }
+
+        /* Enhanced floating elements with more variety */
+        .float-element {
+            position: absolute;
+            border-radius: 50%;
+            animation: float 8s ease-in-out infinite;
+            opacity: 0.6;
+        }
+
+        .float-element:nth-child(1) {
+            top: 20%;
+            left: 10%;
+            width: 4px;
+            height: 4px;
+            background: linear-gradient(45deg, #ff7700, #ff6b35);
+            animation-delay: 0s;
+        }
+
+        .float-element:nth-child(2) {
+            top: 60%;
+            right: 15%;
+            width: 6px;
+            height: 6px;
+            background: linear-gradient(45deg, #ffffff, #ff7700);
+            animation-delay: 2s;
+        }
+
+        .float-element:nth-child(3) {
+            bottom: 30%;
+            left: 20%;
+            width: 3px;
+            height: 3px;
+            background: linear-gradient(45deg, #ff7700, #ffffff);
+            animation-delay: 4s;
+        }
+
+        .float-element:nth-child(4) {
+            top: 40%;
+            right: 30%;
+            width: 5px;
+            height: 5px;
+            background: linear-gradient(45deg, #ffffff, #ff7700);
+            animation-delay: 6s;
+        }
+
+        .float-element:nth-child(5) {
+            bottom: 60%;
+            left: 60%;
+            width: 2px;
+            height: 2px;
+            background: linear-gradient(45deg, #ff7700, #ffffff);
+            animation-delay: 1s;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px) scale(1) rotate(0deg);
+                opacity: 0.6;
+            }
+            25% {
+                transform: translateY(-15px) scale(1.2) rotate(90deg);
+                opacity: 1;
+            }
+            50% {
+                transform: translateY(-25px) scale(1.5) rotate(180deg);
+                opacity: 0.8;
+            }
+            75% {
+                transform: translateY(-15px) scale(1.2) rotate(270deg);
+                opacity: 1;
+            }
+        }
+
+        /* Team Section */
+        .team-section {
+            padding: 6rem 4rem;
+            background: rgba(255, 255, 255, 0.02);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .team-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(255, 119, 0, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 119, 0, 0.03) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .team-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .section-header h2 {
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 700;
+            background: linear-gradient(135deg, #ffffff 0%, #ff7700 50%, #dc2626 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+        }
+
+        .section-header p {
+            font-size: 1.2rem;
+            color: #a1a1aa;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 3rem;
+            margin-top: 4rem;
+        }
+
+        .team-member {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 20px;
+            padding: 2.5rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            gap: 2.5rem;
+            align-items: flex-start;
+        }
+
+        .member-photo {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff7700, #dc2626);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .member-photo::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            animation: photoShine 3s ease-in-out infinite;
+        }
+
+        @keyframes photoShine {
+            0%, 100% { transform: translateX(-100%); }
+            50% { transform: translateX(100%); }
+        }
+
+        .member-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+            position: relative;
+            z-index: 1;
+        }
+
+        .member-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .member-info h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 0.5rem;
+        }
+
+        .member-title {
+            font-size: 1rem;
+            color: #ff7700;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .member-experience {
+            font-size: 0.9rem;
+            color: #d4d4d4;
+            font-weight: 500;
+        }
+
+        .member-description {
+            color: #a1a1aa;
+            line-height: 1.6;
+            font-size: 1rem;
+        }
+
+        .member-highlights {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .highlight-tag {
+            display: inline-block;
+            background: rgba(255, 119, 0, 0.1);
+            color: #ff7700;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin: 0.2rem;
+            border: 1px solid rgba(255, 119, 0, 0.2);
+        }
+
+        .about-cta {
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        /* Contact Section */
+        .contact-section {
+            padding: 6rem 4rem;
+            background: rgba(255, 255, 255, 0.01);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .contact-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        .contact-intro {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .contact-intro h3 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .contact-intro p {
+            font-size: 1.2rem;
+            color: #71717a;
+        }
+
+        .contact-form-container {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .contact-form {
+            flex: 1;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            background-color: rgba(255, 255, 255, 0.08);
+            color: #ffffff;
+            font-family: 'Aldrich', sans-serif;
+            font-size: 1rem;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #ff7700;
+            background-color: rgba(255, 255, 255, 0.12);
+            box-shadow: 0 0 0 2px rgba(255, 119, 0, 0.2);
+        }
+
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: #a1a1aa;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #e5e5e5;
+            font-weight: 500;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #ff7700 0%, #dc2626 100%);
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(255, 119, 0, 0.3);
+        }
+
+        .contact-info {
+            flex: 1;
+        }
+
+        .contact-method {
+            margin-bottom: 1.5rem;
+        }
+
+        .contact-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .contact-method h4 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 0.5rem;
+        }
+
+        .contact-method p {
+            font-size: 1rem;
+            color: #a1a1aa;
+        }
+
+        /* Who We Help Section */
+        .who-we-help-section {
+            padding: 6rem 4rem;
+            background: rgba(255, 255, 255, 0.02);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .section-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        .industries-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .industry-card {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 16px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .industry-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(255, 119, 0, 0.3);
+            box-shadow: 0 20px 40px rgba(255, 119, 0, 0.1);
+        }
+
+        .industry-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .industry-card h3 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 1rem;
+        }
+
+        .industry-card p {
+            color: #a1a1aa;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .industry-features {
+            list-style: none;
+            margin-bottom: 1.5rem;
+        }
+
+        .industry-features li {
+            color: #d4d4d4;
+            margin-bottom: 0.5rem;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .industry-features li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: #ff7700;
+        }
+
+        .industry-cta {
+            display: inline-block;
+            background: rgba(255, 119, 0, 0.1);
+            color: #ff7700;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 119, 0, 0.2);
+        }
+
+        .industry-cta:hover {
+            background: rgba(255, 119, 0, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* AI Ethos Section */
+        .ai-ethos-section {
+            padding: 6rem 4rem;
+            background: rgba(255, 255, 255, 0.01);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ethos-content {
+            margin-top: 3rem;
+        }
+
+        .ethos-intro {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .ethos-intro h3 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 1rem;
+        }
+
+        .ethos-intro p {
+            font-size: 1.1rem;
+            color: #a1a1aa;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .ethos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .ethos-card {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 16px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .ethos-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(255, 119, 0, 0.3);
+            box-shadow: 0 20px 40px rgba(255, 119, 0, 0.1);
+        }
+
+        .ethos-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .ethos-card h4 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 1rem;
+        }
+
+        .ethos-card p {
+            color: #a1a1aa;
+            line-height: 1.6;
+        }
+
+        .ethos-cta {
+            text-align: center;
+        }
+
+        /* About Section */
+        .about-section {
+            padding: 6rem 4rem;
+            background: rgba(255, 255, 255, 0.02);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .about-content {
+            margin-top: 3rem;
+        }
+
+        .about-intro {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .about-intro h3 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 1rem;
+        }
+
+        .about-intro p {
+            font-size: 1.1rem;
+            color: #a1a1aa;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="gradient-bg"></div>
+    <div class="scan-line"></div>
+    <div class="energy-field"></div>
+    
+    <!-- Interactive 3D Logo Background -->
+    <div class="background-logo">
+        <canvas class="background-logo-canvas"></canvas>
+    </div>
+    
+    <div class="float-element"></div>
+    <div class="float-element"></div>
+    <div class="float-element"></div>
+    <div class="float-element"></div>
+    <div class="float-element"></div>
+
+    <div class="container">
+        <nav>
+            <div class="logo">
+                <svg id="svg" version="1.1" xmlns="http://www.w3.org/2000/svg" style="display: block;" viewBox="0 0 556 155"><path d="M0,0 L556,0 L556,155 L0,155 Z " transform="translate(0,0)" style="fill:rgba(3, 3, 3, 0);"/><path d="M0,0 L13,0 L13,95 L0,95 L0,87 L-1,87 L-1,88 L-2,88 L-2,90 L-3,90 L-3,91 L-4,91 L-4,92 L-5,92 L-5,93 L-6,93 L-6,94 L-8,94 L-8,95 L-40,95 L-40,94 L-42,94 L-42,93 L-43,93 L-43,92 L-44,92 L-44,91 L-45,91 L-45,90 L-46,90 L-46,88 L-47,88 L-47,86 L-48,86 L-48,36 L-47,36 L-47,33 L-46,33 L-46,32 L-45,32 L-45,31 L-44,31 L-44,30 L-43,30 L-43,29 L-42,29 L-42,28 L-40,28 L-40,27 L0,27 Z " transform="translate(226,16)" style="fill: #D9D9D9;"/><path d="M0,0 L45,0 L45,1 L48,1 L48,2 L49,2 L49,3 L50,3 L50,4 L51,4 L51,5 L52,5 L52,6 L53,6 L53,8 L54,8 L54,68 L42,68 L42,58 L41,58 L41,60 L40,60 L40,62 L39,62 L39,63 L38,63 L38,65 L36,65 L36,66 L35,66 L35,67 L33,67 L33,68 L4,68 L4,67 L2,67 L2,66 L1,66 L1,65 L0,65 L0,64 L-1,64 L-1,63 L-2,63 L-2,61 L-3,61 L-3,59 L-4,59 L-4,33 L-3,33 L-3,31 L-2,31 L-2,30 L-1,30 L-1,29 L0,29 L0,28 L1,28 L1,27 L2,27 L2,26 L4,26 L4,25 L42,25 L42,13 L0,13 Z " transform="translate(264,43)" style="fill: #DADADA;"/><path d="M0,0 L43,0 L43,1 L44,1 L44,2 L46,2 L46,3 L47,3 L47,4 L48,4 L48,5 L49,5 L49,7 L50,7 L50,24 L38,24 L38,13 L5,13 L5,55 L38,55 L38,44 L50,44 L50,61 L49,61 L49,62 L48,62 L48,63 L47,63 L47,64 L46,64 L46,65 L45,65 L45,66 L44,66 L44,67 L41,67 L41,68 L0,68 L0,67 L-2,67 L-2,66 L-3,66 L-3,65 L-4,65 L-4,64 L-5,64 L-5,62 L-6,62 L-6,61 L-7,61 L-7,58 L-8,58 L-8,9 L-7,9 L-7,7 L-6,7 L-6,5 L-5,5 L-5,4 L-4,4 L-4,3 L-3,3 L-3,2 L-2,2 L-2,1 L0,1 Z " transform="translate(26,43)" style="fill: #D9D9D9;"/><path d="M0,0 L13,0 L13,1 L14,1 L14,3 L15,3 L15,6 L16,6 L16,8 L17,8 L17,10 L18,10 L18,13 L19,13 L19,15 L20,15 L20,17 L21,17 L21,20 L22,20 L22,22 L23,22 L23,24 L24,24 L24,27 L25,27 L25,29 L26,29 L26,32 L27,32 L27,34 L28,34 L28,36 L29,36 L29,39 L30,39 L30,42 L31,42 L31,43 L32,43 L32,46 L34,46 L34,42 L35,42 L35,40 L36,40 L36,38 L37,38 L37,35 L38,35 L38,33 L39,33 L39,30 L40,30 L40,28 L41,28 L41,27 L42,27 L42,24 L43,24 L43,21 L44,21 L44,19 L45,19 L45,16 L46,16 L46,14 L47,14 L47,12 L48,12 L48,9 L49,9 L49,7 L50,7 L50,5 L51,5 L51,2 L52,2 L52,0 L65,0 L65,3 L64,3 L64,5 L63,5 L63,8 L62,8 L62,10 L61,10 L61,12 L60,12 L60,15 L59,15 L59,17 L58,17 L58,19 L57,19 L57,22 L56,22 L56,24 L55,24 L55,26 L54,26 L54,29 L53,29 L53,31 L52,31 L52,33 L51,33 L51,35 L50,35 L50,38 L49,38 L49,40 L48,40 L48,42 L47,42 L47,45 L46,45 L46,47 L45,47 L45,51 L44,51 L44,52 L43,52 L43,54 L42,54 L42,56 L41,56 L41,59 L40,59 L40,61 L39,61 L39,63 L38,63 L38,67 L37,67 L37,68 L36,68 L36,70 L35,70 L35,74 L34,74 L34,75 L33,75 L33,77 L32,77 L32,81 L31,81 L31,82 L30,82 L30,84 L29,84 L29,86 L28,86 L28,89 L27,89 L27,91 L26,91 L26,94 L25,94 L25,96 L12,96 L12,94 L13,94 L13,93 L14,93 L14,89 L15,89 L15,87 L16,87 L16,85 L17,85 L17,82 L18,82 L18,81 L19,81 L19,77 L20,77 L20,75 L21,75 L21,73 L22,73 L22,71 L23,71 L23,68 L24,68 L24,66 L25,66 L25,64 L26,64 L26,60 L25,60 L25,57 L24,57 L24,55 L23,55 L23,53 L22,53 L22,51 L21,51 L21,48 L20,48 L20,46 L19,46 L19,45 L18,45 L18,41 L17,41 L17,39 L16,39 L16,37 L15,37 L15,34 L14,34 L14,32 L13,32 L13,30 L12,30 L12,27 L11,27 L11,25 L10,25 L10,23 L9,23 L9,21 L8,21 L8,18 L7,18 L7,16 L6,16 L6,15 L5,15 L5,11 L4,11 L4,9 L3,9 L3,7 L2,7 L2,4 L1,4 L1,2 L0,2 Z " transform="translate(470,43)" style="fill: #D8D8D8;"/><path d="M0,0 L12,0 L12,21 L35,21 L35,34 L13,34 L13,76 L35,76 L35,89 L8,89 L8,88 L6,88 L6,87 L4,87 L4,86 L3,86 L3,84 L2,84 L2,83 L1,83 L1,80 L0,80 L0,34 L-17,34 L-17,21 L0,21 Z " transform="translate(421,22)" style="fill: #DADADA;"/><path d="M0,0 L35,0 L35,42 L0,42 Z " transform="translate(191,56)" style="fill: #010101;"/><path d="M0,0 L13,0 L13,95 L0,95 Z " transform="translate(339,16)" style="fill: #D9D9D9;"/><path d="M0,0 L12,0 L12,68 L0,68 Z " transform="translate(374,43)" style="fill: #DEDEDE;"/><path d="M0,0 L33,0 L33,17 L0,17 Z " transform="translate(273,81)" style="fill: #080808;"/><path d="M0,0 L14,0 L14,13 L0,13 Z " transform="translate(373,16)" style="fill: #D7D7D7;"/><path d="M0,0 L5,0 L5,3 L1,3 L1,4 L-3,4 L-3,5 L-5,5 L-5,6 L-8,6 L-8,7 L-9,7 L-9,8 L-11,8 L-11,9 L-12,9 L-12,10 L-14,10 L-14,11 L-15,11 L-15,12 L-16,12 L-16,13 L-17,13 L-17,14 L-18,14 L-18,15 L-19,15 L-19,17 L-20,17 L-20,18 L-21,18 L-21,19 L-22,19 L-22,21 L-23,21 L-23,23 L-24,23 L-24,25 L-25,25 L-25,28 L-26,28 L-26,32 L-27,32 L-27,35 L-29,35 L-29,29 L-28,29 L-28,25 L-27,25 L-27,23 L-26,23 L-26,21 L-25,21 L-25,19 L-24,19 L-24,17 L-23,17 L-23,16 L-22,16 L-22,14 L-21,14 L-21,13 L-20,13 L-20,12 L-19,12 L-19,11 L-18,11 L-18,10 L-17,10 L-17,9 L-16,9 L-16,8 L-14,8 L-14,7 L-13,7 L-13,6 L-12,6 L-12,5 L-10,5 L-10,4 L-8,4 L-8,3 L-6,3 L-6,2 L-3,2 L-3,1 L0,1 Z " transform="translate(121,39)" style="fill: #E1CE05;"/><path d="M0,0 L2,0 L2,1 L5,1 L5,2 L8,2 L8,3 L10,3 L10,4 L12,4 L12,5 L13,5 L13,6 L15,6 L15,7 L16,7 L16,8 L17,8 L17,9 L18,9 L18,10 L19,10 L19,11 L20,11 L20,12 L21,12 L21,14 L22,14 L22,15 L23,15 L23,17 L24,17 L24,19 L25,19 L25,21 L26,21 L26,24 L27,24 L27,28 L23,28 L23,24 L22,24 L22,20 L21,20 L21,19 L20,19 L20,17 L19,17 L19,15 L18,15 L18,14 L17,14 L17,13 L16,13 L16,12 L15,12 L15,11 L14,11 L14,10 L13,10 L13,9 L12,9 L12,8 L10,8 L10,7 L8,7 L8,6 L6,6 L6,5 L2,5 L2,4 L0,4 Z " transform="translate(134,45)" style="fill: #E2A403;"/><path d="M0,0 L1,0 L1,4 L-1,4 L-1,5 L-5,5 L-5,6 L-7,6 L-7,7 L-9,7 L-9,8 L-11,8 L-11,9 L-12,9 L-12,10 L-13,10 L-13,11 L-14,11 L-14,12 L-15,12 L-15,13 L-16,13 L-16,14 L-17,14 L-17,15 L-18,15 L-18,17 L-19,17 L-19,18 L-20,18 L-20,20 L-21,20 L-21,23 L-22,23 L-22,28 L-26,28 L-26,24 L-25,24 L-25,21 L-24,21 L-24,19 L-23,19 L-23,17 L-22,17 L-22,15 L-21,15 L-21,14 L-20,14 L-20,12 L-19,12 L-19,11 L-18,11 L-18,10 L-17,10 L-17,9 L-16,9 L-16,8 L-15,8 L-15,7 L-14,7 L-14,6 L-12,6 L-12,5 L-11,5 L-11,4 L-9,4 L-9,3 L-7,3 L-7,2 L-4,2 L-4,1 L0,1 Z " transform="translate(124,45)" style="fill: #E8C503;"/><path d="M0,0 L3,0 L3,2 L4,2 L4,5 L5,5 L5,8 L6,8 L6,10 L7,10 L7,11 L8,11 L8,12 L9,12 L9,13 L10,13 L10,15 L11,15 L11,16 L13,16 L13,17 L14,17 L14,18 L15,18 L15,19 L17,19 L17,20 L19,20 L19,21 L21,21 L21,22 L24,22 L24,23 L26,23 L26,26 L22,26 L22,25 L19,25 L19,24 L17,24 L17,23 L15,23 L15,22 L14,22 L14,21 L12,21 L12,20 L11,20 L11,19 L10,19 L10,18 L9,18 L9,17 L8,17 L8,16 L7,16 L7,15 L6,15 L6,14 L5,14 L5,13 L4,13 L4,11 L3,11 L3,9 L2,9 L2,7 L1,7 L1,4 L0,4 Z " transform="translate(99,83)" style="fill: #E55E02;"/><path d="M0,0 L4,0 L4,2 L3,2 L3,4 L2,4 L2,7 L1,7 L1,9 L0,9 L0,11 L-1,11 L-1,13 L-2,13 L-2,14 L-3,14 L-3,15 L-4,15 L-4,16 L-5,16 L-5,17 L-6,17 L-6,18 L-7,18 L-7,19 L-8,19 L-8,20 L-9,20 L-9,21 L-11,21 L-11,22 L-12,22 L-12,23 L-14,23 L-14,24 L-17,24 L-17,25 L-19,25 L-19,26 L-23,26 L-23,23 L-22,23 L-22,22 L-18,22 L-18,21 L-16,21 L-16,20 L-14,20 L-14,19 L-12,19 L-12,18 L-11,18 L-11,17 L-9,17 L-9,16 L-8,16 L-8,15 L-7,15 L-7,14 L-6,14 L-6,13 L-5,13 L-5,11 L-4,11 L-4,10 L-3,10 L-3,8 L-2,8 L-2,5 L-1,5 L-1,2 L0,2 Z " transform="translate(157,83)" style="fill: #E04D02;"/><path d="M0,0 L2,0 L2,4 L1,4 L1,7 L0,7 L0,10 L-1,10 L-1,13 L-2,13 L-2,15 L-3,15 L-3,17 L-4,17 L-4,18 L-5,18 L-5,19 L-6,19 L-6,21 L-7,21 L-7,22 L-8,22 L-8,23 L-9,23 L-9,24 L-10,24 L-10,25 L-11,25 L-11,26 L-13,26 L-13,27 L-14,27 L-14,28 L-15,28 L-15,29 L-17,29 L-17,30 L-19,30 L-19,31 L-21,31 L-21,32 L-24,32 L-24,33 L-27,33 L-27,31 L-25,31 L-25,30 L-23,30 L-23,29 L-20,29 L-20,28 L-18,28 L-18,27 L-16,27 L-16,26 L-15,26 L-15,25 L-13,25 L-13,24 L-12,24 L-12,23 L-11,23 L-11,22 L-10,22 L-10,21 L-9,21 L-9,20 L-8,20 L-8,18 L-7,18 L-7,17 L-6,17 L-6,15 L-5,15 L-5,14 L-4,14 L-4,11 L-3,11 L-3,9 L-2,9 L-2,7 L-1,7 L-1,1 L0,1 Z " transform="translate(165,81)" style="fill: #D24504;"/><path d="M0,0 L3,0 L3,33 L0,33 Z " transform="translate(128,87)" style="fill: #F1F3F0;"/><path d="M0,0 L3,0 L3,33 L0,33 Z " transform="translate(128,35)" style="fill: #EFF3EF;"/><path d="M0,0 L32,0 L32,3 Z " transform="translate(87,76)" style="fill: #F7F9F7;"/><path d="M0,0 L32,0 L32,3 Z " transform="translate(140,76)" style="fill: #F8FAF8;"/><path d="M0,0 L3,0 L3,1 L4,1 L4,2 L6,2 L6,3 L7,3 L7,4 L9,4 L9,5 L10,5 L10,6 L11,6 L11,7 L12,7 L12,8 L13,8 L13,9 L14,9 L14,10 L15,10 L15,11 L16,11 L16,12 L17,12 L17,14 L18,14 L18,15 L19,15 L19,17 L20,17 L20,19 L21,19 L21,21 L22,21 L22,24 L23,24 L23,28 L24,28 L24,32 L22,32 L22,30 L21,30 L21,26 L20,26 L20,22 L19,22 L19,20 L18,20 L18,18 L17,18 L17,16 L16,16 L16,15 L15,15 L15,14 L14,14 L14,12 L13,12 L13,11 L12,11 L12,10 L11,10 L11,9 L10,9 L10,8 L9,8 L9,7 L7,7 L7,6 L6,6 L6,5 L5,5 L5,4 L3,4 L3,3 L1,3 L1,2 L0,2 Z " transform="translate(143,42)" style="fill: #DB7105;"/><path d="M0,0 L2,0 L2,3 L3,3 L3,5 L4,5 L4,7 L5,7 L5,8 L6,8 L6,9 L7,9 L7,11 L8,11 L8,12 L9,12 L9,13 L10,13 L10,14 L11,14 L11,15 L12,15 L12,16 L13,16 L13,17 L14,17 L14,18 L16,18 L16,19 L18,19 L18,20 L19,20 L19,21 L21,21 L21,22 L23,22 L23,24 L20,24 L20,23 L18,23 L18,22 L16,22 L16,21 L14,21 L14,20 L13,20 L13,19 L12,19 L12,18 L11,18 L11,17 L10,17 L10,16 L8,16 L8,15 L7,15 L7,13 L6,13 L6,12 L5,12 L5,11 L4,11 L4,9 L3,9 L3,8 L2,8 L2,6 L1,6 L1,4 L0,4 L0,2 L-1,2 L-1,1 L0,1 Z " transform="translate(95,89)" style="fill: #DE5A03;"/><path d="M0,0 L2,0 L2,1 L4,1 L4,2 L5,2 L5,3 L6,3 L6,4 L7,4 L7,5 L8,5 L8,6 L9,6 L9,7 L10,7 L10,9 L11,9 L11,11 L7,11 L7,9 L6,9 L6,8 L5,8 L5,7 L4,7 L4,6 L3,6 L3,5 L2,5 L2,4 L0,4 Z " transform="translate(134,61)" style="fill: #D88F04;"/><path d="M0,0 L4,0 L4,1 L5,1 L5,3 L6,3 L6,4 L7,4 L7,5 L9,5 L9,6 L10,6 L10,7 L11,7 L11,10 L8,10 L8,9 L7,9 L7,8 L5,8 L5,7 L4,7 L4,6 L3,6 L3,4 L2,4 L2,3 L1,3 L1,2 L0,2 Z " transform="translate(114,83)" style="fill: #DA6404;"/><path d="M0,0 L2,0 L2,4 L0,4 L0,5 L-1,5 L-1,6 L-2,6 L-2,7 L-3,7 L-3,8 L-4,8 L-4,9 L-5,9 L-5,10 L-9,10 L-9,9 L-8,9 L-8,7 L-7,7 L-7,6 L-6,6 L-6,5 L-5,5 L-5,4 L-4,4 L-4,3 L-3,3 L-3,2 L-2,2 L-2,1 L0,1 Z " transform="translate(123,61)" style="fill: #E8AF03;"/><path d="M0,0 L4,0 L4,2 L3,2 L3,3 L2,3 L2,5 L1,5 L1,6 L0,6 L0,7 L-1,7 L-1,8 L-2,8 L-2,9 L-4,9 L-4,10 L-6,10 L-6,6 L-4,6 L-4,5 L-3,5 L-3,4 L-2,4 L-2,3 L-1,3 L-1,2 L0,2 Z " transform="translate(141,83)" style="fill: #E05C03;"/><path d="M0,0 L3,0 L3,1 L4,1 L4,2 L6,2 L6,3 L7,3 L7,4 L9,4 L9,5 L10,5 L10,6 L11,6 L11,7 L12,7 L12,8 L13,8 L13,9 L14,9 L14,10 L15,10 L15,11 L14,11 L14,12 L13,12 L13,11 L12,11 L12,10 L11,10 L11,9 L10,9 L10,8 L9,8 L9,7 L7,7 L7,6 L6,6 L6,5 L5,5 L5,4 L3,4 L3,3 L1,3 L1,2 L0,2 Z " transform="translate(143,42)" style="fill: #E1AD03;"/><path d="M0,0 L3,0 L3,1 L4,1 L4,4 L3,4 L3,5 L0,5 L0,4 L-1,4 L-1,1 L0,1 Z " transform="translate(128,75)" style="fill: #E56D03;"/></svg>
+            </div>
+            <ul class="nav-links">
+                <li><a href="#who-we-help">Who We Help</a></li>
+                <li><a href="#ai-ethos">AI Ethos</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </nav>
+
+        <main class="hero">
+            <div class="hero-content">
+                <h1>AI-Powered Development</h1>
+                <p class="hero-subtitle">Crafted With AI, Not By It</p>
+                <p class="hero-description">
+                    We bridge the gap between AI's potential and real business needs. Three senior engineers who harness AI's power while ensuring your solutions are robust, scalable, and actually solve your problems. No more broken promises from automated code generation.
+                </p>
+                <div class="cta-container">
+                    <a href="#contact" class="cta-primary">Let's Talk</a>
+                    <a href="#who-we-help" class="cta-secondary">Who We Help</a>
+                </div>
+            </div>
+        </main>
+
+        <section id="who-we-help" class="who-we-help-section">
+            <div class="section-container">
+                <div class="section-header">
+                    <h2>Who We Help</h2>
+                    <p>We design solutions for industries that need more than off-the-shelf software.</p>
+                </div>
+                
+                <div class="industries-grid">
+                    <div class="industry-card">
+                        <div class="industry-icon">🏢</div>
+                        <h3>Small & Midsize Businesses</h3>
+                        <p>We help growing teams automate operations, streamline customer interactions, and build tools that scale without the overhead of enterprise bloat.</p>
+                        <ul class="industry-features">
+                            <li>Custom scheduling tools, dashboards, and real-time messaging</li>
+                            <li>AI-assisted development to accelerate delivery</li>
+                            <li>Systems that flex as your business evolves</li>
+                        </ul>
+                        <a href="#contact" class="industry-cta">Build Without Breaking the Bank</a>
+                    </div>
+
+                    <div class="industry-card">
+                        <div class="industry-icon">💰</div>
+                        <h3>Financial Services</h3>
+                        <p>We design secure, scalable platforms tailored to the compliance-heavy, fast-moving world of wealth and asset management.</p>
+                        <ul class="industry-features">
+                            <li>Integrated CRM + custodial workflows</li>
+                            <li>Commission logic, client onboarding, and investment ops automation</li>
+                            <li>Multi-system architecture with an audit-ready mindset</li>
+                        </ul>
+                        <a href="#contact" class="industry-cta">Talk to a Team That Speaks Finance</a>
+                    </div>
+
+                    <div class="industry-card">
+                        <div class="industry-icon">🏥</div>
+                        <h3>Insurance</h3>
+                        <p>Modern solutions for an industry built on legacy systems.</p>
+                        <ul class="industry-features">
+                            <li>Real-time quoting, call center logic, and agent enablement</li>
+                            <li>Apex customization for compliance workflows</li>
+                            <li>CTI and data automation that meets regulation without slowing down</li>
+                        </ul>
+                        <a href="#contact" class="industry-cta">Let's Untangle the Mess</a>
+                    </div>
+
+                    <div class="industry-card">
+                        <div class="industry-icon">🧠</div>
+                        <h3>Higher Education</h3>
+                        <p>Tools for institutions that manage people, events, data — and deadlines.</p>
+                        <ul class="industry-features">
+                            <li>Event registration platforms with complex logic</li>
+                            <li>Role-aware workflows for multi-day programs and internal departments</li>
+                            <li>Custom Salesforce apps built for education operations</li>
+                        </ul>
+                        <a href="#contact" class="industry-cta">See What's Possible on Campus</a>
+                    </div>
+
+                    <div class="industry-card">
+                        <div class="industry-icon">🏛️</div>
+                        <h3>Nonprofits</h3>
+                        <p>Mission-focused platforms with the flexibility to grow.</p>
+                        <ul class="industry-features">
+                            <li>Donor and program management solutions</li>
+                            <li>Customizations that respect staff time, budget, and compliance</li>
+                            <li>AI-accelerated development for impact-focused orgs</li>
+                        </ul>
+                        <a href="#contact" class="industry-cta">Let's Build for Good</a>
+                    </div>
+
+                    <div class="industry-card">
+                        <div class="industry-icon">📱</div>
+                        <h3>Mobile App Development</h3>
+                        <p>Apps that connect your business with your customers — seamlessly.</p>
+                        <ul class="industry-features">
+                            <li>Secure backend APIs and modern mobile interfaces</li>
+                            <li>GraphQL and push-notification logic done right</li>
+                            <li>Designed to scale with you, not slow you down</li>
+                        </ul>
+                        <a href="#contact" class="industry-cta">Make It Mobile</a>
+                    </div>
+
+                    <div class="industry-card">
+                        <div class="industry-icon">🆔</div>
+                        <h3>Certification & Credentialing Bodies</h3>
+                        <p>Standards enforcement is hard. We make it software-friendly.</p>
+                        <ul class="industry-features">
+                            <li>Dynamic assessment logic</li>
+                            <li>Automated tracking of progress, documentation, and renewals</li>
+                            <li>Configurable rulesets with reporting built in</li>
+                        </ul>
+                        <a href="#contact" class="industry-cta">Streamline the Standards</a>
+                    </div>
+
+                    <div class="industry-card">
+                        <div class="industry-icon">🏢</div>
+                        <h3>Franchises & Multi-Location Businesses</h3>
+                        <p>Local autonomy, central control — without compromise.</p>
+                        <ul class="industry-features">
+                            <li>Branded portals with layered permissions</li>
+                            <li>Tools to monitor, support, and analyze franchise performance</li>
+                            <li>Built-in workflows for onboarding, support, and compliance</li>
+                        </ul>
+                        <a href="#contact" class="industry-cta">Empower Every Location</a>
+                    </div>
+
+                    <div class="industry-card">
+                        <div class="industry-icon">⚙️</div>
+                        <h3>Salesforce Customers Ready for Apex Superpowers</h3>
+                        <p>Declarative tools are great — until they aren't.</p>
+                        <ul class="industry-features">
+                            <li>AI-assisted Apex development to cut time, not corners</li>
+                            <li>Logic that complements Flows, not fights them</li>
+                            <li>Governance, scalability, and maintainability baked in</li>
+                        </ul>
+                        <a href="#contact" class="industry-cta">Unleash Your Org's Potential</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="ai-ethos" class="ai-ethos-section">
+            <div class="section-container">
+                <div class="section-header">
+                    <h2>AI Ethos</h2>
+                    <p>Crafted With AI, Not By It</p>
+                </div>
+                
+                <div class="ethos-content">
+                    <div class="ethos-intro">
+                        <h3>Our approach to using AI as a tool — not a shortcut</h3>
+                        <p>We believe AI should amplify human expertise, not replace it. Our process combines the speed and creativity of AI with the precision and understanding that only experienced engineers can provide.</p>
+                    </div>
+                    
+                    <div class="ethos-grid">
+                        <div class="ethos-card">
+                            <div class="ethos-icon">🤖</div>
+                            <h4>Thoughtful Integration</h4>
+                            <p>We use AI to accelerate development, not automate decisions. Every line of code is reviewed, tested, and optimized by human engineers who understand your business context.</p>
+                        </div>
+                        
+                        <div class="ethos-card">
+                            <div class="ethos-icon">⚡</div>
+                            <h4>Where AI Accelerates</h4>
+                            <p>Code generation, testing frameworks, documentation, and repetitive tasks. AI handles the grunt work so we can focus on architecture, security, and business logic.</p>
+                        </div>
+                        
+                        <div class="ethos-card">
+                            <div class="ethos-icon">👨‍💻</div>
+                            <h4>Where We Stay Hands-On</h4>
+                            <p>System architecture, security reviews, performance optimization, and business logic. The critical decisions that determine whether your solution succeeds or fails.</p>
+                        </div>
+                        
+                        <div class="ethos-card">
+                            <div class="ethos-icon">📈</div>
+                            <h4>Real Examples</h4>
+                            <p>See how we've used AI to deliver enterprise-grade solutions in weeks instead of months, while maintaining the quality and reliability your business demands.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="ethos-cta">
+                        <a href="#contact" class="cta-primary">Get the Details</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="about" class="about-section">
+            <div class="section-container">
+                <div class="section-header">
+                    <h2>About</h2>
+                    <p>Who we are, what we value, and how we build.</p>
+                </div>
+                
+                <div class="about-content">
+                    <div class="about-intro">
+                        <h3>Veteran-led with cross-industry experience</h3>
+                        <p>We've seen bad code. We do better. Our process is built around empathy, security, and long-term thinking. We understand that software isn't just about functionality—it's about enabling your business to grow and adapt.</p>
+                    </div>
+                    
+                    <div class="team-grid">
+                        <div class="team-member">
+                            <div class="member-photo">
+                                <img src="assets/jessie.jpg" alt="Jessie Grenfell">
+                            </div>
+                            <div class="member-content">
+                                <div class="member-info">
+                                    <h3>Jessie Grenfell</h3>
+                                    <div class="member-title">Senior Technical Architect</div>
+                                    <div class="member-experience">30+ Years Experience</div>
+                                </div>
+                                <div class="member-description">
+                                    A true powerhouse in the tech field with three decades of experience in Salesforce and cloud solutions. 
+                                    Known throughout the industry, Jessie ran a private consultancy for a decade and has served as an 
+                                    executive-level employee at multiple companies. Diligent, structured, and professional - an absolute 
+                                    rockstar who brings enterprise-level expertise to every project.
+                                </div>
+                                <div class="member-highlights">
+                                    <span class="highlight-tag">Salesforce Expert</span>
+                                    <span class="highlight-tag">Cloud Solutions</span>
+                                    <span class="highlight-tag">Executive Leadership</span>
+                                    <span class="highlight-tag">Strategic Planning</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="team-member">
+                            <div class="member-photo">
+                                <img src="assets/amit.jpg" alt="Amit Kulkarni">
+                            </div>
+                            <div class="member-content">
+                                <div class="member-info">
+                                    <h3>Amit Kulkarni</h3>
+                                    <div class="member-title">Full Stack Architect</div>
+                                    <div class="member-experience">10+ Years Experience</div>
+                                </div>
+                                <div class="member-description">
+                                    Our head AI wrangler with a decade of experience developing full-stack cloud solutions. 
+                                    Expert in Salesforce, AWS, and Mulesoft, Amit can tackle anything from building user interfaces 
+                                    to designing database schemas to writing integrations. Language agnostic and capable of picking 
+                                    up any new technology, he excels at translating business needs into real, deliverable solutions.
+                                </div>
+                                <div class="member-highlights">
+                                    <span class="highlight-tag">AI Integration</span>
+                                    <span class="highlight-tag">Full Stack</span>
+                                    <span class="highlight-tag">AWS</span>
+                                    <span class="highlight-tag">Mulesoft</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="team-member">
+                            <div class="member-photo">
+                                <img src="assets/ryan.jpg" alt="Ryan McCloskey">
+                            </div>
+                            <div class="member-content">
+                                <div class="member-info">
+                                    <h3>Ryan McCloskey</h3>
+                                    <div class="member-title">Technical Architect</div>
+                                    <div class="member-experience">10+ Years Experience</div>
+                                </div>
+                                <div class="member-description">
+                                    An extremely talented software engineer with a decade of backend development experience. 
+                                    Ryan prioritizes best practices and loves optimizing solutions. A speaker at multiple tech 
+                                    conferences on topics including Salesforce backend best practices, Inversion of Control, 
+                                    and dependency injection. He maintains our core codebase, ensuring every client receives 
+                                    the absolute best solution possible.
+                                </div>
+                                <div class="member-highlights">
+                                    <span class="highlight-tag">Backend Architecture</span>
+                                    <span class="highlight-tag">Best Practices</span>
+                                    <span class="highlight-tag">Conference Speaker</span>
+                                    <span class="highlight-tag">Code Optimization</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="about-cta">
+                        <a href="#contact" class="cta-primary">Meet Codality</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact" class="contact-section">
+            <div class="section-container">
+                <div class="section-header">
+                    <h2>Contact</h2>
+                    <p>Quick, friendly, to the point.</p>
+                </div>
+                
+                <div class="contact-content">
+                    <div class="contact-intro">
+                        <h3>Tell us your weirdest integration challenge.</h3>
+                        <p>We love solving complex problems. Whether you need a custom Salesforce solution, mobile app, or something entirely unique, we're here to help.</p>
+                    </div>
+                    
+                    <div class="contact-form-container">
+                        <form class="contact-form" id="contactForm">
+                            <div class="form-group">
+                                <label for="name">Name</label>
+                                <input type="text" id="name" name="name" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="email">Email</label>
+                                <input type="email" id="email" name="email" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="company">Company</label>
+                                <input type="text" id="company" name="company">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="industry">Industry</label>
+                                <select id="industry" name="industry">
+                                    <option value="">Select your industry</option>
+                                    <option value="smb">Small & Midsize Business</option>
+                                    <option value="financial">Financial Services</option>
+                                    <option value="insurance">Insurance</option>
+                                    <option value="education">Higher Education</option>
+                                    <option value="nonprofit">Nonprofit</option>
+                                    <option value="mobile">Mobile App Development</option>
+                                    <option value="certification">Certification & Credentialing</option>
+                                    <option value="franchise">Franchises & Multi-Location</option>
+                                    <option value="salesforce">Salesforce Apex Development</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="message">Tell us about your project</label>
+                                <textarea id="message" name="message" rows="5" placeholder="Describe your weirdest integration challenge or what you're looking to build..." required></textarea>
+                            </div>
+                            
+                            <button type="submit" class="submit-btn">Let's Talk Shop</button>
+                        </form>
+                        
+                        <div class="contact-info">
+                            <div class="contact-method">
+                                <div class="contact-icon">📧</div>
+                                <h4>Email</h4>
+                                <p>hello@codality.com</p>
+                            </div>
+                            
+                            <div class="contact-method">
+                                <div class="contact-icon">💬</div>
+                                <h4>Quick Chat</h4>
+                                <p>Ready to discuss your project? We're here to help.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="scroll-indicator">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 5v14M19 12l-7 7-7-7"/>
+            </svg>
+        </div>
+
+        <footer>
+            <p>&copy; 2025 Codality. Building the future, one line at a time.</p>
+        </footer>
+    </div>
+
+    <script>
+        class InteractiveCrosshairLogo {
+            constructor(container) {
+                this.container = container;
+                this.canvas = container.querySelector('.background-logo-canvas');
+                this.mouse = new THREE.Vector2();
+                this.isAnimating = false;
+                this.time = 0;
+                this.particles = [];
+                this.energyLevel = 0;
+                this.lastClickTime = 0;
+                
+                this.init();
+                this.createLogo();
+                this.createParticleSystem();
+                this.createLighting();
+                this.setupEventListeners();
+                this.animate();
+            }
+            
+            init() {
+                // Scene setup
+                this.scene = new THREE.Scene();
+                this.camera = new THREE.PerspectiveCamera(
+                    75, 
+                    this.container.offsetWidth / this.container.offsetHeight, 
+                    0.1, 
+                    1000
+                );
+                this.renderer = new THREE.WebGLRenderer({ 
+                    canvas: this.canvas,
+                    antialias: true,
+                    alpha: true
+                });
+                
+                this.renderer.setSize(this.container.offsetWidth, this.container.offsetHeight);
+                this.renderer.setClearColor(0x000000, 0);
+                this.renderer.shadowMap.enabled = true;
+                this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+                this.camera.position.z = 8;
+            }
+            
+            createLighting() {
+                // Ambient light
+                this.ambientLight = new THREE.AmbientLight(0x404040, 0.3);
+                this.scene.add(this.ambientLight);
+                
+                // Point light that follows mouse
+                this.pointLight = new THREE.PointLight(0xff7700, 1, 10);
+                this.pointLight.position.set(0, 0, 5);
+                this.scene.add(this.pointLight);
+                
+                // Directional light for shadows
+                this.directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+                this.directionalLight.position.set(5, 5, 5);
+                this.directionalLight.castShadow = true;
+                this.scene.add(this.directionalLight);
+            }
+            
+            createParticleSystem() {
+                this.particleGroup = new THREE.Group();
+                
+                // Create particle geometry
+                const particleGeometry = new THREE.SphereGeometry(0.02, 8, 8);
+                const particleMaterial = new THREE.MeshBasicMaterial({
+                    color: 0xff7700,
+                    transparent: true,
+                    opacity: 0.8
+                });
+                
+                // Create particles in a sphere around the logo
+                for (let i = 0; i < 50; i++) {
+                    const particle = new THREE.Mesh(particleGeometry, particleMaterial.clone());
+                    
+                    // Random position in a sphere
+                    const radius = 4 + Math.random() * 2;
+                    const theta = Math.random() * Math.PI * 2;
+                    const phi = Math.acos(Math.random() * 2 - 1);
+                    
+                    particle.position.x = radius * Math.sin(phi) * Math.cos(theta);
+                    particle.position.y = radius * Math.sin(phi) * Math.sin(theta);
+                    particle.position.z = radius * Math.cos(phi);
+                    
+                    particle.userData = {
+                        originalPosition: particle.position.clone(),
+                        speed: 0.01 + Math.random() * 0.02,
+                        angle: Math.random() * Math.PI * 2,
+                        radius: radius
+                    };
+                    
+                    this.particles.push(particle);
+                    this.particleGroup.add(particle);
+                }
+                
+                this.scene.add(this.particleGroup);
+            }
+            
+            createRing(innerRadius, outerRadius, segments = 64) {
+                const shape = new THREE.Shape();
+                shape.arc(0, 0, outerRadius, 0, Math.PI * 2, false);
+                
+                const hole = new THREE.Path();
+                hole.arc(0, 0, innerRadius, 0, Math.PI * 2, true);
+                shape.holes.push(hole);
+                
+                return new THREE.ShapeGeometry(shape, segments);
+            }
+            
+            createSegmentedRing(innerRadius, outerRadius, segments = 8, gapAngle = 0.3, ringIndex = 0) {
+                const group = new THREE.Group();
+                const segmentAngle = (Math.PI * 2) / segments;
+                
+                for (let i = 0; i < segments; i++) {
+                    const startAngle = i * segmentAngle + gapAngle / 2;
+                    const endAngle = (i + 1) * segmentAngle - gapAngle / 2;
+                    
+                    const shape = new THREE.Shape();
+                    shape.arc(0, 0, outerRadius, startAngle, endAngle, false);
+                    shape.arc(0, 0, innerRadius, endAngle, startAngle, true);
+                    
+                    const geometry = new THREE.ShapeGeometry(shape, 32);
+                    const material = this.createGradientMaterial(ringIndex);
+                    const segment = new THREE.Mesh(geometry, material);
+                    group.add(segment);
+                }
+                
+                return group;
+            }
+            
+            createGradientMaterial(ringIndex) {
+                const canvas = document.createElement('canvas');
+                canvas.width = 256;
+                canvas.height = 256;
+                const ctx = canvas.getContext('2d');
+                
+                const gradient = ctx.createRadialGradient(128, 128, 0, 128, 128, 128);
+                
+                if (ringIndex === 0) { // Outer ring - more red-orange
+                    gradient.addColorStop(0, '#ffaa00');
+                    gradient.addColorStop(0.4, '#ff8800');
+                    gradient.addColorStop(1, '#ff7700');
+                } else if (ringIndex === 1) { // Middle ring - orange
+                    gradient.addColorStop(0, '#ffcc00');
+                    gradient.addColorStop(0.5, '#ffaa00');
+                    gradient.addColorStop(1, '#ff8800');
+                } else { // Inner ring - yellow-orange
+                    gradient.addColorStop(0, '#ffdd00');
+                    gradient.addColorStop(0.3, '#ffcc00');
+                    gradient.addColorStop(1, '#ffaa00');
+                }
+                
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, 256, 256);
+                
+                const texture = new THREE.CanvasTexture(canvas);
+                return new THREE.MeshBasicMaterial({ 
+                    map: texture,
+                    transparent: true,
+                    opacity: 0.9
+                });
+            }
+            
+            createCrosshairCircle(radius, thickness = 0.1) {
+                const geometry = new THREE.RingGeometry(radius - thickness, radius + thickness, 128);
+                
+                // Create textured material with animated properties
+                const material = new THREE.MeshBasicMaterial({ 
+                    color: 0xffffff,
+                    transparent: true,
+                    opacity: 0.8,
+                    side: THREE.DoubleSide
+                });
+                
+                const circle = new THREE.Mesh(geometry, material);
+                
+                // Add animation properties
+                circle.userData = {
+                    originalRadius: radius,
+                    pulseSpeed: 0.02 + Math.random() * 0.01,
+                    pulsePhase: Math.random() * Math.PI * 2,
+                    rotationSpeed: 0.005 + Math.random() * 0.01,
+                    opacitySpeed: 0.03 + Math.random() * 0.02,
+                    opacityPhase: Math.random() * Math.PI * 2
+                };
+                
+                return circle;
+            }
+            
+            createCrosshairLine(length, width) {
+                const geometry = new THREE.PlaneGeometry(length, width);
+                
+                // Create textured material with animated properties
+                const material = new THREE.MeshBasicMaterial({ 
+                    color: 0xffffff,
+                    transparent: true,
+                    opacity: 0.95
+                });
+                
+                const line = new THREE.Mesh(geometry, material);
+                
+                // Add animation properties
+                line.userData = {
+                    originalLength: length,
+                    originalWidth: width,
+                    pulseSpeed: 0.015 + Math.random() * 0.01,
+                    pulsePhase: Math.random() * Math.PI * 2,
+                    rotationSpeed: 0.003 + Math.random() * 0.005,
+                    opacitySpeed: 0.025 + Math.random() * 0.015,
+                    opacityPhase: Math.random() * Math.PI * 2,
+                    waveSpeed: 0.02 + Math.random() * 0.01,
+                    wavePhase: Math.random() * Math.PI * 2
+                };
+                
+                return line;
+            }
+            
+            createCenterDot() {
+                const geometry = new THREE.CircleGeometry(0.15, 32);
+                
+                // Create a more interesting material with glow effect
+                const material = new THREE.MeshBasicMaterial({ 
+                    color: 0xff7700,
+                    transparent: true,
+                    opacity: 0.9
+                });
+                
+                const centerDot = new THREE.Mesh(geometry, material);
+                
+                // Add a glow ring around the center dot
+                const glowGeometry = new THREE.RingGeometry(0.18, 0.25, 32);
+                const glowMaterial = new THREE.MeshBasicMaterial({
+                    color: 0xff7700,
+                    transparent: true,
+                    opacity: 0.4,
+                    side: THREE.DoubleSide
+                });
+                
+                const glowRing = new THREE.Mesh(glowGeometry, glowMaterial);
+                centerDot.add(glowRing);
+                
+                // Add inner detail ring
+                const innerRingGeometry = new THREE.RingGeometry(0.08, 0.12, 16);
+                const innerRingMaterial = new THREE.MeshBasicMaterial({
+                    color: 0xffffff,
+                    transparent: true,
+                    opacity: 0.6
+                });
+                
+                const innerRing = new THREE.Mesh(innerRingGeometry, innerRingMaterial);
+                centerDot.add(innerRing);
+                
+                return centerDot;
+            }
+            
+            createLogo() {
+                this.logoGroup = new THREE.Group();
+                
+                // Create rings with proper z-layering
+                this.outerRing = this.createSegmentedRing(2.8, 3.5, 8, 0.4, 0);
+                this.outerRing.position.z = -0.3;
+                this.logoGroup.add(this.outerRing);
+                
+                this.middleRing = this.createSegmentedRing(2.2, 2.6, 8, 0.3, 1);
+                this.middleRing.position.z = -0.2;
+                this.logoGroup.add(this.middleRing);
+                
+                this.innerRing = this.createSegmentedRing(1.5, 1.8, 6, 0.5, 2);
+                this.innerRing.position.z = -0.1;
+                this.logoGroup.add(this.innerRing);
+                
+                // Create crosshair circles
+                this.middleCircle = this.createCrosshairCircle(2.4, 0.05);
+                this.middleCircle.position.z = 0.1;
+                this.logoGroup.add(this.middleCircle);
+                
+                this.innerCircle = this.createCrosshairCircle(1.6, 0.04);
+                this.innerCircle.position.z = 0.2;
+                this.logoGroup.add(this.innerCircle);
+                
+                // Create crosshair lines
+                this.horizontalLine = this.createCrosshairLine(6, 0.2);
+                this.horizontalLine.position.z = 0.3;
+                this.logoGroup.add(this.horizontalLine);
+                
+                this.verticalLine = this.createCrosshairLine(0.2, 6);
+                this.verticalLine.position.z = 0.3;
+                this.logoGroup.add(this.verticalLine);
+                
+                // Create center dot
+                this.centerDot = this.createCenterDot();
+                this.centerDot.position.z = 0.4;
+                this.logoGroup.add(this.centerDot);
+                
+                this.scene.add(this.logoGroup);
+            }
+            
+            setupEventListeners() {
+                this.onMouseMove = this.onMouseMove.bind(this);
+                this.onClick = this.onClick.bind(this);
+                this.onWindowResize = this.onWindowResize.bind(this);
+                
+                document.addEventListener('mousemove', this.onMouseMove);
+                document.addEventListener('click', this.onClick);
+                window.addEventListener('resize', this.onWindowResize);
+            }
+            
+            onMouseMove(event) {
+                this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+                this.mouse.y = ((event.clientY / window.innerHeight) * 2 - 1) * -1;
+                
+                // Update point light position
+                this.pointLight.position.x = this.mouse.x * 3;
+                this.pointLight.position.y = this.mouse.y * 3;
+                
+                // Create subtle particle trail
+                if (Math.random() < 0.1) {
+                    this.createTrailParticle(event.clientX, event.clientY);
+                }
+            }
+            
+            createTrailParticle(x, y) {
+                const particle = new THREE.Mesh(
+                    new THREE.SphereGeometry(0.01, 4, 4),
+                    new THREE.MeshBasicMaterial({
+                        color: 0xff7700,
+                        transparent: true,
+                        opacity: 0.6
+                    })
+                );
+                
+                // Convert screen coordinates to world coordinates
+                const vector = new THREE.Vector3();
+                vector.set(
+                    (x / window.innerWidth) * 2 - 1,
+                    -(y / window.innerHeight) * 2 + 1,
+                    0.5
+                );
+                vector.unproject(this.camera);
+                const dir = vector.sub(this.camera.position).normalize();
+                const distance = -this.camera.position.z / dir.z;
+                const pos = this.camera.position.clone().add(dir.multiplyScalar(distance));
+                
+                particle.position.copy(pos);
+                particle.userData = {
+                    life: 1.0,
+                    velocity: new THREE.Vector3(
+                        (Math.random() - 0.5) * 0.01,
+                        (Math.random() - 0.5) * 0.01,
+                        (Math.random() - 0.5) * 0.01
+                    )
+                };
+                
+                this.scene.add(particle);
+                
+                // Animate and remove particle
+                const animateParticle = () => {
+                    if (particle.userData.life > 0) {
+                        particle.userData.life -= 0.02;
+                        particle.position.add(particle.userData.velocity);
+                        particle.material.opacity = particle.userData.life;
+                        particle.scale.setScalar(1 + (1 - particle.userData.life) * 2);
+                        requestAnimationFrame(animateParticle);
+                    } else {
+                        this.scene.remove(particle);
+                    }
+                };
+                animateParticle();
+            }
+            
+            onClick() {
+                this.isAnimating = !this.isAnimating;
+                this.lastClickTime = Date.now();
+                
+                // Create explosion effect
+                this.createExplosion();
+                
+                // Activate energy field
+                const energyField = document.querySelector('.energy-field');
+                if (energyField) {
+                    if (this.isAnimating) {
+                        energyField.classList.add('active');
+                    } else {
+                        energyField.classList.remove('active');
+                    }
+                }
+                
+                // Create ripple effect
+                this.createRippleEffect();
+            }
+            
+            createRippleEffect() {
+                const ripple = document.createElement('div');
+                ripple.style.cssText = `
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    width: 0;
+                    height: 0;
+                    border: 2px solid rgba(255, 119, 0, 0.8);
+                    border-radius: 50%;
+                    pointer-events: none;
+                    z-index: 999;
+                    animation: rippleExpand 1s ease-out forwards;
+                `;
+                
+                const style = document.createElement('style');
+                style.textContent = `
+                    @keyframes rippleExpand {
+                        0% {
+                            width: 0;
+                            height: 0;
+                            opacity: 1;
+                        }
+                        100% {
+                            width: 300px;
+                            height: 300px;
+                            opacity: 0;
+                        }
+                    }
+                `;
+                
+                document.head.appendChild(style);
+                document.body.appendChild(ripple);
+                
+                setTimeout(() => {
+                    document.body.removeChild(ripple);
+                }, 1000);
+            }
+            
+            onKeyPress(event) {
+                // Removed spacebar handling to allow form input
+            }
+            
+            createExplosion() {
+                // Create temporary explosion particles
+                for (let i = 0; i < 20; i++) {
+                    const particle = new THREE.Mesh(
+                        new THREE.SphereGeometry(0.02, 8, 8),
+                        new THREE.MeshBasicMaterial({
+                            color: 0xff7700,
+                            transparent: true,
+                            opacity: 1
+                        })
+                    );
+                    
+                    particle.position.copy(this.centerDot.position);
+                    particle.velocity = new THREE.Vector3(
+                        (Math.random() - 0.5) * 0.2,
+                        (Math.random() - 0.5) * 0.2,
+                        (Math.random() - 0.5) * 0.2
+                    );
+                    particle.life = 1.0;
+                    
+                    this.scene.add(particle);
+                    
+                    // Remove particle after animation
+                    setTimeout(() => {
+                        this.scene.remove(particle);
+                    }, 1000);
+                }
+            }
+            
+            onWindowResize() {
+                const width = this.container.offsetWidth;
+                const height = this.container.offsetHeight;
+                
+                this.camera.aspect = width / height;
+                this.camera.updateProjectionMatrix();
+                this.renderer.setSize(width, height);
+            }
+            
+            updateParticles() {
+                this.particles.forEach(particle => {
+                    const data = particle.userData;
+                    
+                    // Orbit around the logo
+                    data.angle += data.speed;
+                    particle.position.x = data.originalPosition.x + Math.cos(data.angle) * 0.5;
+                    particle.position.y = data.originalPosition.y + Math.sin(data.angle) * 0.5;
+                    
+                    // Pulse opacity
+                    particle.material.opacity = 0.3 + Math.sin(this.time * 2 + data.angle) * 0.4;
+                    
+                    // React to animation state
+                    if (this.isAnimating) {
+                        particle.material.color.setHSL(0.1, 1, 0.6);
+                        particle.scale.setScalar(1.5);
+                    } else {
+                        particle.material.color.setHSL(0.1, 0.8, 0.5);
+                        particle.scale.setScalar(1);
+                    }
+                });
+            }
+            
+            animate() {
+                requestAnimationFrame(() => this.animate());
+                
+                this.time += 0.01;
+                this.energyLevel = Math.max(0, this.energyLevel - 0.02);
+                
+                // Mouse interaction
+                const targetRotationY = this.mouse.x * 0.3;
+                const targetRotationX = this.mouse.y * 0.3;
+                
+                this.logoGroup.rotation.y += (targetRotationY - this.logoGroup.rotation.y) * 0.05;
+                this.logoGroup.rotation.x += (targetRotationX - this.logoGroup.rotation.x) * 0.05;
+                
+                // Update particles
+                this.updateParticles();
+                
+                if (this.isAnimating) {
+                    this.energyLevel = Math.min(1, this.energyLevel + 0.05);
+                    
+                    // Fast rotation when animating
+                    this.outerRing.rotation.z += 0.02;
+                    this.middleRing.rotation.z -= 0.025;
+                    this.innerRing.rotation.z += 0.03;
+                    this.middleCircle.rotation.z += 0.015;
+                    this.innerCircle.rotation.z -= 0.02;
+                    
+                    // Subtle pulsing effect
+                    const scale = 1 + Math.sin(this.time * 2) * 0.02;
+                    this.logoGroup.scale.set(scale, scale, scale);
+                    
+                    // Dynamic color shifting
+                    const hue = 15 + Math.sin(this.time * 2) * 15; // Constrain to red-yellow range (0-60)
+                    this.centerDot.material.color.setHSL(hue / 360, 0.9, 0.6);
+                    
+                    // Center dot pulsing and rotation
+                    const centerPulse = 1 + Math.sin(this.time * 4) * 0.1;
+                    this.centerDot.scale.set(centerPulse, centerPulse, centerPulse);
+                    this.centerDot.rotation.z += 0.02;
+                    
+                    // Glow ring animation
+                    if (this.centerDot.children[0]) {
+                        this.centerDot.children[0].material.opacity = 0.4 + Math.sin(this.time * 3) * 0.2;
+                        this.centerDot.children[0].rotation.z -= 0.01;
+                    }
+                    
+                    // Inner ring animation
+                    if (this.centerDot.children[1]) {
+                        this.centerDot.children[1].material.opacity = 0.6 + Math.sin(this.time * 2) * 0.3;
+                        this.centerDot.children[1].rotation.z += 0.015;
+                    }
+                    
+                    // Enhanced lighting
+                    this.pointLight.intensity = 1 + Math.sin(this.time * 3) * 0.5;
+                    this.pointLight.color.setHSL(hue / 360, 0.8, 0.6);
+                    
+                    // Ring color transitions - constrain to red-yellow range
+                    this.outerRing.children.forEach((segment, i) => {
+                        const segmentHue = Math.max(0, Math.min(60, hue + i * 10)); // Keep within 0-60 range
+                        segment.material.color.setHSL(segmentHue / 360, 0.8, 0.6);
+                    });
+                    
+                } else {
+                    // Gentle idle rotation
+                    this.outerRing.rotation.z += 0.003;
+                    this.middleRing.rotation.z -= 0.002;
+                    this.innerRing.rotation.z += 0.004;
+                    this.middleCircle.rotation.z += 0.0015;
+                    this.innerCircle.rotation.z -= 0.002;
+                    
+                    // Return to normal scale
+                    const targetScale = 1;
+                    this.logoGroup.scale.x += (targetScale - this.logoGroup.scale.x) * 0.1;
+                    this.logoGroup.scale.y += (targetScale - this.logoGroup.scale.y) * 0.1;
+                    this.logoGroup.scale.z += (targetScale - this.logoGroup.scale.z) * 0.1;
+                    
+                    // Gentle center dot animation
+                    this.centerDot.rotation.z += 0.005;
+                    const gentlePulse = 1 + Math.sin(this.time * 1) * 0.02;
+                    this.centerDot.scale.set(gentlePulse, gentlePulse, gentlePulse);
+                    
+                    // Return center dot to orange
+                    this.centerDot.material.color.lerp(new THREE.Color(0xff5500), 0.05);
+                    
+                    // Gentle glow ring animation
+                    if (this.centerDot.children[0]) {
+                        this.centerDot.children[0].rotation.z -= 0.002;
+                    }
+                    
+                    // Gentle inner ring animation
+                    if (this.centerDot.children[1]) {
+                        this.centerDot.children[1].rotation.z += 0.003;
+                    }
+                    
+                    // Return lighting to normal
+                    this.pointLight.intensity = 0.5;
+                    this.pointLight.color.lerp(new THREE.Color(0xff7700), 0.05);
+                }
+                
+                // Floating animation
+                this.logoGroup.position.y = Math.sin(this.time * 0.5) * 0.1;
+                
+                // Enhanced crosshair animations
+                this.updateCrosshairAnimations();
+                
+                // Very subtle energy wave effect
+                if (this.energyLevel > 0) {
+                    const waveScale = 1 + this.energyLevel * 0.05;
+                    this.logoGroup.scale.multiplyScalar(waveScale);
+                }
+                
+                this.renderer.render(this.scene, this.camera);
+            }
+            
+            updateCrosshairAnimations() {
+                // Animate crosshair circles
+                [this.middleCircle, this.innerCircle].forEach(circle => {
+                    if (circle && circle.userData) {
+                        const data = circle.userData;
+                        
+                        // Pulsing radius effect
+                        const pulse = Math.sin(this.time * data.pulseSpeed + data.pulsePhase) * 0.02;
+                        const currentRadius = data.originalRadius + pulse;
+                        
+                        // Update geometry with new radius
+                        const newGeometry = new THREE.RingGeometry(
+                            currentRadius - 0.05, 
+                            currentRadius + 0.05, 
+                            128
+                        );
+                        circle.geometry.dispose();
+                        circle.geometry = newGeometry;
+                        
+                        // Rotation animation
+                        circle.rotation.z += data.rotationSpeed;
+                        
+                        // Opacity pulsing
+                        circle.material.opacity = 0.6 + Math.sin(this.time * data.opacitySpeed + data.opacityPhase) * 0.3;
+                        
+                        // Color variation based on animation state
+                        if (this.isAnimating) {
+                            const hue = Math.max(0, Math.min(60, 15 + Math.sin(this.time * 2) * 15)); // Red-yellow range
+                            circle.material.color.setHSL(hue / 360, 0.8, 0.7);
+                        } else {
+                            circle.material.color.lerp(new THREE.Color(0xffffff), 0.05);
+                        }
+                    }
+                });
+                
+                // Animate crosshair lines
+                [this.horizontalLine, this.verticalLine].forEach(line => {
+                    if (line && line.userData) {
+                        const data = line.userData;
+                        
+                        // Pulsing scale effect
+                        const pulse = Math.sin(this.time * data.pulseSpeed + data.pulsePhase) * 0.05;
+                        const scale = 1 + pulse;
+                        
+                        if (line === this.horizontalLine) {
+                            line.scale.x = scale;
+                        } else {
+                            line.scale.y = scale;
+                        }
+                        
+                        // Opacity pulsing
+                        line.material.opacity = 0.7 + Math.sin(this.time * data.opacitySpeed + data.opacityPhase) * 0.25;
+                        
+                        // Color variation based on animation state
+                        if (this.isAnimating) {
+                            const hue = Math.max(0, Math.min(60, 15 + Math.sin(this.time * 2) * 15)); // Red-yellow range
+                            line.material.color.setHSL(hue / 360, 0.8, 0.7);
+                        } else {
+                            line.material.color.lerp(new THREE.Color(0xffffff), 0.05);
+                        }
+                    }
+                });
+            }
+            
+            destroy() {
+                document.removeEventListener('mousemove', this.onMouseMove);
+                document.removeEventListener('click', this.onClick);
+                window.removeEventListener('resize', this.onWindowResize);
+                
+                // Clean up Three.js resources
+                this.scene.clear();
+                this.renderer.dispose();
+            }
+        }
+        
+        // Initialize the 3D logo when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            const container = document.querySelector('.background-logo');
+            new InteractiveCrosshairLogo(container);
+            
+            // Form handling
+            const contactForm = document.getElementById('contactForm');
+            if (contactForm) {
+                contactForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    // Get form data
+                    const formData = new FormData(this);
+                    const data = Object.fromEntries(formData);
+                    
+                    // Here you would typically send the data to your server
+                    console.log('Form submitted:', data);
+                    
+                    // Show success message
+                    alert('Thanks for reaching out! We\'ll get back to you soon.');
+                    this.reset();
+                });
+            }
+            
+            // Smooth scrolling for navigation links
+            const navLinks = document.querySelectorAll('a[href^="#"]');
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    const targetSection = document.querySelector(targetId);
+                    
+                    if (targetSection) {
+                        targetSection.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html> 
