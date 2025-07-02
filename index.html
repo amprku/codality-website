@@ -248,9 +248,57 @@
 
         .hero-content {
             max-width: 800px;
-            animation: fadeInUp 1s ease-out;
             position: relative;
             z-index: 3;
+        }
+
+        /* Hero content animations */
+        .hero h1 {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .hero-subtitle {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .hero-description {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .cta-container {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        /* Animation classes that will be added via JavaScript */
+        .hero-animations-active .hero h1 {
+            animation: heroFadeInUp 0.8s ease-out 0.2s forwards;
+        }
+
+        .hero-animations-active .hero-subtitle {
+            animation: heroFadeInUp 0.8s ease-out 0.6s forwards;
+        }
+
+        .hero-animations-active .hero-description {
+            animation: heroFadeInUp 0.8s ease-out 1.0s forwards;
+        }
+
+        .hero-animations-active .cta-container {
+            animation: heroFadeInUp 0.8s ease-out 1.4s forwards;
+        }
+
+        @keyframes heroFadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         @keyframes fadeInUp {
@@ -1738,6 +1786,9 @@
                 this.particles = [];
                 this.energyLevel = 0;
                 this.lastClickTime = 0;
+                this.isLoading = true;
+                this.loadProgress = 0;
+                this.loadStartTime = Date.now();
                 
                 this.init();
                 this.createLogo();
@@ -1945,6 +1996,7 @@
                     originalLength: length,
                     originalWidth: width,
                     gap: gap,
+                    segmentLength: segmentLength,
                     pulseSpeed: 0.015 + Math.random() * 0.01,
                     pulsePhase: Math.random() * Math.PI * 2,
                     rotationSpeed: 0.003 + Math.random() * 0.005,
@@ -2041,7 +2093,45 @@
                 this.centerDot.position.z = 0.4;
                 this.logoGroup.add(this.centerDot);
                 
+                // Set initial states for loading animation
+                this.setInitialLoadStates();
+                
                 this.scene.add(this.logoGroup);
+            }
+            
+            setInitialLoadStates() {
+                // Hide all elements initially
+                this.logoGroup.visible = false;
+                
+                // Set crosshair elements to zero scale and opacity
+                [this.innerGapCircle, this.outerMainCircle, this.outerSubtleCircle].forEach(circle => {
+                    if (circle) {
+                        circle.scale.set(0, 0, 0);
+                        circle.material.opacity = 0;
+                    }
+                });
+                
+                [this.horizontalLine, this.verticalLine].forEach(line => {
+                    if (line) {
+                        // Start lines very thin and stretched across screen in X formation
+                        line.scale.set(10, 0.01, 1); // Very wide, extremely thin (1px equivalent)
+                        line.children.forEach(segment => {
+                            segment.material.opacity = 0;
+                        });
+                    }
+                });
+                
+                this.centerDot.scale.set(0, 0, 0);
+                this.centerDot.material.opacity = 0;
+                
+                // Set rings to zero opacity
+                [this.outerRing, this.middleRing, this.innerRing].forEach(ring => {
+                    if (ring) {
+                        ring.children.forEach(segment => {
+                            segment.material.opacity = 0;
+                        });
+                    }
+                });
             }
             
             setupEventListeners() {
@@ -2118,6 +2208,11 @@
             }
             
             onClick(event) {
+                // Disable click animations during loading
+                if (this.isLoading) {
+                    return;
+                }
+                
                 // Check if the click was on a CTA button
                 const isCTAClick = event.target.closest('.cta-primary, .cta-secondary, .submit-btn, .industry-cta');
                 
@@ -2411,6 +2506,13 @@
                 this.time += 0.01;
                 this.energyLevel = Math.max(0, this.energyLevel - 0.02);
                 
+                // Handle loading animation
+                if (this.isLoading) {
+                    this.updateLoadAnimation();
+                    this.renderer.render(this.scene, this.camera);
+                    return;
+                }
+                
                 // Mouse interaction
                 const targetRotationY = this.mouse.x * 0.3;
                 const targetRotationX = this.mouse.y * 0.3;
@@ -2520,6 +2622,156 @@
                 this.renderer.render(this.scene, this.camera);
             }
             
+            updateLoadAnimation() {
+                const elapsed = Date.now() - this.loadStartTime;
+                const totalDuration = 4000; // 4 seconds total
+                
+                if (elapsed >= totalDuration) {
+                    // Animation complete
+                    this.isLoading = false;
+                    this.logoGroup.visible = true;
+                    
+                    // Trigger hero animations
+                    this.triggerHeroAnimations();
+                    return;
+                }
+                
+                const progress = elapsed / totalDuration;
+                
+                // Phase 1: Center dot appears and blinks (0-15% of total time)
+                if (progress <= 0.15) {
+                    const centerProgress = progress / 0.15;
+                    
+                    if (centerProgress <= 0.3) {
+                        // Appear
+                        const appearEase = 1 - Math.pow(1 - (centerProgress / 0.3), 3);
+                        this.centerDot.scale.set(appearEase, appearEase, appearEase);
+                        this.centerDot.material.opacity = appearEase;
+                        this.logoGroup.visible = true;
+                    } else if (centerProgress <= 0.7) {
+                        // Blink
+                        const blinkProgress = (centerProgress - 0.3) / 0.4;
+                        const blink = Math.sin(blinkProgress * Math.PI * 4) > 0 ? 1 : 0.3;
+                        this.centerDot.material.opacity = blink;
+                    } else {
+                        // Settle
+                        const settleProgress = (centerProgress - 0.7) / 0.3;
+                        this.centerDot.material.opacity = 0.3 + (settleProgress * 0.7);
+                    }
+                }
+                
+                // Phase 2: Lines stretch across screen (15-35% of total time)
+                if (progress > 0.15 && progress <= 0.35) {
+                    const lineProgress = (progress - 0.15) / 0.2;
+                    
+                    [this.horizontalLine, this.verticalLine].forEach((line, index) => {
+                        if (line) {
+                            const delay = index * 0.1;
+                            const elementProgress = Math.max(0, Math.min(1, (lineProgress - delay) / (1 - delay)));
+                            
+                            if (elementProgress > 0) {
+                                // Quick opacity jump to final opacity (0.95)
+                                if (elementProgress < 0.1) {
+                                    line.children.forEach(segment => {
+                                        segment.material.opacity = 0.95;
+                                    });
+                                }
+                                
+                                // Simple scale animation from stretched to final size
+                                const scaleX = 10 - (elementProgress * 9); // From 10 to 1
+                                const scaleY = 0.01 + (elementProgress * 0.99); // From 0.01 to 1
+                                line.scale.set(scaleX, scaleY, 1);
+                                
+                                // Rotate from X formation to final position
+                                if (index === 0) { // Horizontal line
+                                    // Start at 45 degrees (X formation) and rotate to 0 degrees (horizontal)
+                                    line.rotation.z = (1 - elementProgress) * Math.PI / 4;
+                                } else { // Vertical line
+                                    // Start at -45 degrees (X formation) and rotate to 90 degrees (vertical)
+                                    line.rotation.z = Math.PI / 2 + (1 - elementProgress) * Math.PI / 4;
+                                }
+                                
+                                // At the very end, ensure we match the normal state exactly
+                                if (elementProgress >= 0.99) {
+                                    line.scale.set(1, 1, 1);
+                                    // Reset rotation to final positions
+                                    if (index === 0) {
+                                        line.rotation.z = 0; // Horizontal
+                                    } else {
+                                        line.rotation.z = Math.PI / 2; // Vertical
+                                    }
+                                    line.children.forEach(segment => {
+                                        segment.material.opacity = 0.95; // Match normal state
+                                    });
+                                }
+                            }
+                        }
+                    });
+                }
+                
+                // Phase 3: Inner circles grow from center (35-55% of total time)
+                if (progress > 0.35 && progress <= 0.55) {
+                    const circleProgress = (progress - 0.35) / 0.2;
+                    const easeOut = 1 - Math.pow(1 - circleProgress, 3);
+                    
+                    [this.innerGapCircle, this.outerMainCircle, this.outerSubtleCircle].forEach((circle, index) => {
+                        if (circle) {
+                            const delay = index * 0.15;
+                            const elementProgress = Math.max(0, Math.min(1, (circleProgress - delay) / (1 - delay)));
+                            
+                            if (elementProgress > 0) {
+                                const scale = easeOut * elementProgress;
+                                circle.scale.set(scale, scale, scale);
+                                circle.material.opacity = easeOut * elementProgress;
+                                
+                                // At the very end, ensure we match the normal state exactly
+                                if (elementProgress >= 0.99) {
+                                    circle.scale.set(1, 1, 1);
+                                    circle.material.opacity = 1.0; // Match normal state
+                                }
+                            }
+                        }
+                    });
+                }
+                
+                // Phase 4: Rings fade in (55-100% of total time)
+                if (progress > 0.55) {
+                    const ringProgress = (progress - 0.55) / 0.45;
+                    const easeInOut = ringProgress < 0.5 ? 
+                        2 * ringProgress * ringProgress : 
+                        1 - Math.pow(-2 * ringProgress + 2, 3) / 2;
+                    
+                    // Animate rings in sequence
+                    [this.innerRing, this.middleRing, this.outerRing].forEach((ring, index) => {
+                        if (ring) {
+                            const delay = index * 0.15;
+                            const elementProgress = Math.max(0, Math.min(1, (ringProgress - delay) / (1 - delay)));
+                            if (elementProgress > 0) {
+                                const opacity = easeInOut * elementProgress;
+                                ring.children.forEach(segment => {
+                                    segment.material.opacity = opacity;
+                                });
+                                
+                                // Add subtle rotation during entrance
+                                ring.rotation.z = (1 - easeInOut) * Math.PI * 0.5 * (index + 1);
+                            }
+                        }
+                    });
+                }
+            }
+            
+            triggerHeroAnimations() {
+                // The CSS animations are already set up with delays
+                // This method can be used for any additional JavaScript-based animations
+                // or to ensure the animations are properly triggered
+                
+                // Add a class to the body to ensure animations are active
+                document.body.classList.add('hero-animations-active');
+                
+                // Optional: Add any additional JavaScript-based animations here
+                // For example, we could add subtle particle effects or other enhancements
+            }
+            
             updateCrosshairAnimations() {
                 // Animate crosshair circles
                 [this.innerGapCircle, this.outerMainCircle, this.outerSubtleCircle].forEach(circle => {
@@ -2542,8 +2794,8 @@
                         // Rotation animation
                         circle.rotation.z += data.rotationSpeed;
                         
-                        // Opacity pulsing
-                        circle.material.opacity = 0.6 + Math.sin(this.time * data.opacitySpeed + data.opacityPhase) * 0.3;
+                        // Opacity pulsing - match loading animation final state
+                        circle.material.opacity = 1.0 + Math.sin(this.time * data.opacitySpeed + data.opacityPhase) * 0.1;
                         
                         // Color variation based on animation state
                         if (this.isAnimating) {
@@ -2560,14 +2812,14 @@
                     if (line && line.userData) {
                         const data = line.userData;
                         
-                        // Pulsing scale effect
+                        // Pulsing scale effect - start at exact loading animation end state
                         const pulse = Math.sin(this.time * data.pulseSpeed + data.pulsePhase) * 0.05;
                         const scale = 1 + pulse;
                         
-                        line.scale.x = scale;
-                        // Opacity pulsing for both segments
+                        line.scale.set(scale, 1, 1); // Ensure Y and Z scale stay at 1, X pulses from 1
+                        // Opacity pulsing for both segments - match loading animation final state
                         line.children.forEach(segment => {
-                            segment.material.opacity = 0.7 + Math.sin(this.time * data.opacitySpeed + data.opacityPhase) * 0.25;
+                            segment.material.opacity = 0.95 + Math.sin(this.time * data.opacitySpeed + data.opacityPhase) * 0.05;
                         });
                         // Color variation based on animation state
                         if (this.isAnimating) {
