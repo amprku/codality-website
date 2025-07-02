@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Codality - Elite Software Engineering</title>
+    <link rel="icon" type="image/png" href="assets/favicon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Aldrich:wght@400;700&family=Tilt+Neon:wght@400;500;600&display=swap" rel="stylesheet">
@@ -701,6 +702,36 @@
             box-shadow: 0 0 0 2px rgba(255, 119, 0, 0.2);
         }
 
+        /* Custom select styling */
+        .form-group select {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23ff7700' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 0.8rem center;
+            background-size: 1.2em;
+            padding-right: 2.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .form-group select:hover {
+            border-color: rgba(255, 119, 0, 0.5);
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .form-group select option {
+            background-color: #1a1a1a;
+            color: #ffffff;
+            padding: 0.8rem;
+            border: none;
+        }
+
+        .form-group select option:hover {
+            background-color: rgba(255, 119, 0, 0.2);
+        }
+
         .form-group input::placeholder,
         .form-group textarea::placeholder {
             color: #b8b8b8;
@@ -1247,6 +1278,21 @@
             }
         }
 
+        /* Footer styling */
+        footer {
+            text-align: center;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.02);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 2rem;
+        }
+
+        footer p {
+            color: #c8c8c8;
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
         /* Ensure proper viewport behavior */
         @media (max-width: 768px) {
             .container {
@@ -1675,12 +1721,6 @@
                 </div>
             </div>
         </section>
-
-        <div class="scroll-indicator">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M12 5v14M19 12l-7 7-7-7"/>
-            </svg>
-        </div>
 
         <footer>
             <p>&copy; 2025 Codality. Building the future, one line at a time.</p>
