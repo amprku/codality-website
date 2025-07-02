@@ -1,0 +1,27 @@
+{
+  "name": "codality-website",
+  "version": "1.0.0",
+  "description": "Codality - Elite Software Engineering Website",
+  "main": "index.html",
+  "scripts": {
+    "start": "firebase serve",
+    "build": "echo 'Static site - no build step required'",
+    "deploy": "firebase deploy",
+    "deploy:preview": "firebase hosting:channel:deploy preview"
+  },
+  "keywords": [
+    "codality",
+    "software-engineering",
+    "ai",
+    "firebase",
+    "website"
+  ],
+  "author": "Codality Team",
+  "license": "MIT",
+  "devDependencies": {
+    "firebase-tools": "^13.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+} 
