@@ -1088,6 +1088,8 @@ class InteractiveCrosshairLogo {
         if (elapsed >= totalDuration) {
             // Animation complete
             this.isLoading = false;
+            document.body.classList.remove('loading');
+            document.body.classList.add('hero-animations-active');
             
             // Ensure all elements are at their final state
             [this.innerGapCircle, this.outerMainCircle, this.outerSubtleCircle].forEach(circle => {
@@ -1489,6 +1491,35 @@ document.addEventListener('DOMContentLoaded', () => {
             this.reset();
         });
     }
+    
+    // Hamburger menu functionality
+    const hamburgerMenu = document.getElementById('hamburgerMenu');
+    const mobileNavOverlay = document.getElementById('mobileNavOverlay');
+    const mobileNavLinks = document.querySelectorAll('.mobile-nav-links a');
+    
+    hamburgerMenu.addEventListener('click', function() {
+        this.classList.toggle('active');
+        mobileNavOverlay.classList.toggle('active');
+        document.body.style.overflow = mobileNavOverlay.classList.contains('active') ? 'hidden' : '';
+    });
+    
+    // Close mobile menu when clicking on a link
+    mobileNavLinks.forEach(link => {
+        link.addEventListener('click', function() {
+            hamburgerMenu.classList.remove('active');
+            mobileNavOverlay.classList.remove('active');
+            document.body.style.overflow = '';
+        });
+    });
+    
+    // Close mobile menu when clicking outside
+    mobileNavOverlay.addEventListener('click', function(e) {
+        if (e.target === this) {
+            hamburgerMenu.classList.remove('active');
+            mobileNavOverlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+    });
     
     // Smooth scrolling for navigation links
     const navLinks = document.querySelectorAll('a[href^="#"]');
