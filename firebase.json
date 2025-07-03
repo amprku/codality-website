@@ -1,5 +1,6 @@
 {
   "hosting": {
+    "site": "codality-website",
     "public": ".",
     "ignore": [
       "firebase.json",
