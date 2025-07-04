@@ -12,6 +12,9 @@ class InteractiveCrosshairLogo {
         this.loadProgress = 0;
         this.loadStartTime = Date.now();
         
+        // Add loading class to body to disable scrolling during intro animation
+        document.body.classList.add('loading');
+        
         this.init();
         this.createParticleSystem();
         this.createLighting();
