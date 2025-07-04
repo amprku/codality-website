@@ -8,6 +8,211 @@
     box-sizing: border-box;
 }
 
+/* ==========================================================================
+   Scroll Animation Classes
+   ========================================================================== */
+
+/* Base animation classes for scroll-triggered animations */
+.scroll-animate {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.scroll-animate.from-left {
+    transform: translateX(-50px);
+}
+
+.scroll-animate.from-right {
+    transform: translateX(50px);
+}
+
+.scroll-animate.from-bottom {
+    transform: translateY(50px);
+}
+
+.scroll-animate.scale-in {
+    transform: scale(0.8);
+}
+
+.scroll-animate.rotate-in {
+    transform: rotate(-5deg) scale(0.9);
+}
+
+/* Animation states when elements come into view */
+.scroll-animate.animate-in {
+    opacity: 1;
+    transform: translate(0, 0) scale(1) rotate(0deg);
+}
+
+/* Staggered animation delays for grid items */
+.scroll-animate.stagger-1 { transition-delay: 0.1s; }
+.scroll-animate.stagger-2 { transition-delay: 0.2s; }
+.scroll-animate.stagger-3 { transition-delay: 0.3s; }
+.scroll-animate.stagger-4 { transition-delay: 0.4s; }
+.scroll-animate.stagger-5 { transition-delay: 0.5s; }
+.scroll-animate.stagger-6 { transition-delay: 0.6s; }
+.scroll-animate.stagger-7 { transition-delay: 0.7s; }
+.scroll-animate.stagger-8 { transition-delay: 0.8s; }
+
+/* Enhanced flashy effects */
+.scroll-animate.flashy {
+    position: relative;
+    overflow: hidden;
+}
+
+.scroll-animate.flashy::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 119, 0, 0.3), transparent);
+    transition: left 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    z-index: 1;
+    pointer-events: none;
+}
+
+.scroll-animate.flashy.animate-in::before {
+    left: 100%;
+}
+
+/* Glow effect for cards */
+.scroll-animate.glow-effect {
+    box-shadow: 0 0 0 rgba(255, 119, 0, 0);
+    transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.3s ease;
+}
+
+.scroll-animate.glow-effect.animate-in {
+    box-shadow: 0 0 20px rgba(255, 119, 0, 0.2);
+}
+
+/* Pulse effect for icons */
+.scroll-animate.pulse-icon {
+    transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.scroll-animate.pulse-icon.animate-in {
+    animation: iconPulse 0.6s ease-out 0.3s both;
+}
+
+@keyframes iconPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+/* Text reveal effect */
+.scroll-animate.text-reveal {
+    overflow: hidden;
+}
+
+.scroll-animate.text-reveal h2,
+.scroll-animate.text-reveal h3,
+.scroll-animate.text-reveal h4,
+.scroll-animate.text-reveal p {
+    transform: translateY(100%);
+    transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.scroll-animate.text-reveal.animate-in h2,
+.scroll-animate.text-reveal.animate-in h3,
+.scroll-animate.text-reveal.animate-in h4,
+.scroll-animate.text-reveal.animate-in p {
+    transform: translateY(0);
+}
+
+/* Slide and fade for form elements */
+.scroll-animate.form-slide {
+    transform: translateX(-30px);
+    transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.scroll-animate.form-slide.animate-in {
+    transform: translateX(0);
+}
+
+/* Enhanced card animations */
+.scroll-animate.card-float {
+    transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.scroll-animate.card-float.animate-in {
+    animation: cardFloat 0.8s ease-out both;
+}
+
+@keyframes cardFloat {
+    0% { 
+        transform: translateY(30px) scale(0.95);
+        opacity: 0;
+    }
+    50% {
+        transform: translateY(-5px) scale(1.02);
+        opacity: 0.8;
+    }
+    100% { 
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+}
+
+/* Performance optimizations for animations */
+.scroll-animate {
+    will-change: transform, opacity;
+    backface-visibility: hidden;
+    transform: translateZ(0);
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+    .scroll-animate {
+        transition: none !important;
+        animation: none !important;
+    }
+    
+    .scroll-animate.animate-in {
+        opacity: 1;
+        transform: none !important;
+    }
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+    .scroll-animate {
+        transition-duration: 0.6s;
+    }
+    
+    .scroll-animate.stagger-1 { transition-delay: 0.05s; }
+    .scroll-animate.stagger-2 { transition-delay: 0.1s; }
+    .scroll-animate.stagger-3 { transition-delay: 0.15s; }
+    .scroll-animate.stagger-4 { transition-delay: 0.2s; }
+    .scroll-animate.stagger-5 { transition-delay: 0.25s; }
+    .scroll-animate.stagger-6 { transition-delay: 0.3s; }
+    .scroll-animate.stagger-7 { transition-delay: 0.35s; }
+    .scroll-animate.stagger-8 { transition-delay: 0.4s; }
+}
+
+/* Enhanced hover effects for animated cards */
+.scroll-animate.card-float.animate-in:hover {
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 10px 30px rgba(255, 119, 0, 0.3);
+}
+
+/* Smooth transitions for all interactive elements */
+.ethos-card,
+.industry-card,
+.team-member,
+.contact-method {
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Enhanced focus states for accessibility */
+.scroll-animate:focus-within {
+    outline: 2px solid rgba(255, 119, 0, 0.5);
+    outline-offset: 2px;
+}
+
 body {
     font-family: 'Tilt Neon', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     background: #0a0a0a;

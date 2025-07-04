@@ -1471,10 +1471,160 @@ class InteractiveCrosshairLogo {
     }
 }
 
+// ==========================================================================
+// Scroll Animation System
+// ==========================================================================
+
+class ScrollAnimator {
+    constructor() {
+        this.animatedElements = new Set();
+        this.observerOptions = {
+            root: null,
+            rootMargin: '0px 0px -50px 0px', // Trigger when element is 50px from bottom of viewport
+            threshold: 0.1
+        };
+        
+        this.init();
+    }
+    
+    init() {
+        // Create intersection observer
+        this.observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && !this.animatedElements.has(entry.target)) {
+                    this.animateElement(entry.target);
+                    this.animatedElements.add(entry.target);
+                }
+            });
+        }, this.observerOptions);
+        
+        // Observe all scroll-animate elements
+        this.observeElements();
+        
+        // Re-observe on window resize to handle dynamic content
+        window.addEventListener('resize', () => {
+            this.observeElements();
+        });
+    }
+    
+    observeElements() {
+        const elements = document.querySelectorAll('.scroll-animate');
+        elements.forEach(element => {
+            if (!this.animatedElements.has(element)) {
+                this.observer.observe(element);
+            }
+        });
+    }
+    
+    animateElement(element) {
+        // Add the animate-in class to trigger the animation
+        element.classList.add('animate-in');
+        
+        // Add subtle particle effect for flashy elements
+        if (element.classList.contains('flashy')) {
+            this.createFlashEffect(element);
+        }
+        
+        // Add glow effect for cards
+        if (element.classList.contains('glow-effect')) {
+            this.createGlowEffect(element);
+        }
+        
+        // Add pulse effect for icons
+        if (element.classList.contains('pulse-icon')) {
+            this.createPulseEffect(element);
+        }
+    }
+    
+    createFlashEffect(element) {
+        // Create a flash particle effect
+        const flash = document.createElement('div');
+        flash.style.cssText = `
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent, rgba(255, 119, 0, 0.4), transparent);
+            pointer-events: none;
+            z-index: 10;
+            animation: flashSweep 0.6s ease-out forwards;
+        `;
+        
+        // Add flash animation keyframes if not already present
+        if (!document.querySelector('#flash-animation-styles')) {
+            const style = document.createElement('style');
+            style.id = 'flash-animation-styles';
+            style.textContent = `
+                @keyframes flashSweep {
+                    0% {
+                        transform: translateX(-100%) skewX(-15deg);
+                        opacity: 0;
+                    }
+                    50% {
+                        opacity: 1;
+                    }
+                    100% {
+                        transform: translateX(200%) skewX(-15deg);
+                        opacity: 0;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+        
+        element.style.position = 'relative';
+        element.appendChild(flash);
+        
+        // Remove flash element after animation
+        setTimeout(() => {
+            if (flash.parentNode) {
+                flash.parentNode.removeChild(flash);
+            }
+        }, 600);
+    }
+    
+    createGlowEffect(element) {
+        // Add a subtle glow animation
+        element.style.transition = 'box-shadow 0.3s ease, transform 0.3s ease';
+        
+        // Trigger glow effect
+        setTimeout(() => {
+            element.style.boxShadow = '0 0 25px rgba(255, 119, 0, 0.3)';
+            element.style.transform = 'translateY(-2px)';
+            
+            // Reset after a short delay
+            setTimeout(() => {
+                element.style.boxShadow = '0 0 15px rgba(255, 119, 0, 0.2)';
+                element.style.transform = 'translateY(0)';
+            }, 300);
+        }, 200);
+    }
+    
+    createPulseEffect(element) {
+        // Add a pulse animation to icons
+        element.style.animation = 'iconPulse 0.6s ease-out 0.2s both';
+    }
+    
+    // Method to manually trigger animations (useful for testing)
+    triggerAllAnimations() {
+        const elements = document.querySelectorAll('.scroll-animate');
+        elements.forEach(element => {
+            if (!this.animatedElements.has(element)) {
+                this.animateElement(element);
+                this.animatedElements.add(element);
+            }
+        });
+    }
+}
+
 // Initialize the 3D logo when the page loads
 document.addEventListener('DOMContentLoaded', () => {
     const container = document.querySelector('.background-logo');
     new InteractiveCrosshairLogo(container);
+    
+    // Initialize scroll animations
+    const scrollAnimator = new ScrollAnimator();
     
     // Form handling
     const contactForm = document.getElementById('contactForm');
@@ -1540,4 +1690,62 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
+    
+    // Add scroll-triggered particle effects for enhanced flashiness
+    let scrollTimeout;
+    window.addEventListener('scroll', () => {
+        clearTimeout(scrollTimeout);
+        scrollTimeout = setTimeout(() => {
+            // Create subtle particle effects during scroll
+            if (Math.random() < 0.3) { // 30% chance on scroll
+                createScrollParticles();
+            }
+        }, 100);
+    });
+    
+    function createScrollParticles() {
+        const particle = document.createElement('div');
+        particle.style.cssText = `
+            position: fixed;
+            width: 2px;
+            height: 2px;
+            background: rgba(255, 119, 0, 0.6);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 1000;
+            animation: particleFloat 2s ease-out forwards;
+        `;
+        
+        // Position particle randomly on screen
+        particle.style.left = Math.random() * window.innerWidth + 'px';
+        particle.style.top = Math.random() * window.innerHeight + 'px';
+        
+        // Add particle animation keyframes if not already present
+        if (!document.querySelector('#particle-animation-styles')) {
+            const style = document.createElement('style');
+            style.id = 'particle-animation-styles';
+            style.textContent = `
+                @keyframes particleFloat {
+                    0% {
+                        transform: translateY(0) scale(1);
+                        opacity: 1;
+                    }
+                    100% {
+                        transform: translateY(-50px) scale(0);
+                        opacity: 0;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+        
+        document.body.appendChild(particle);
+        
+        // Remove particle after animation
+        setTimeout(() => {
+            if (particle.parentNode) {
+                particle.parentNode.removeChild(particle);
+            }
+        }, 2000);
+    }
 });
