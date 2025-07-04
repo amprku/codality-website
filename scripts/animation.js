@@ -1621,8 +1621,22 @@ class ScrollAnimator {
     }
 }
 
+// Reset scroll position to top on page load/refresh
+function resetScrollPosition() {
+    // Try multiple methods to ensure scroll reset works
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    
+    // Force a reflow to ensure the scroll reset takes effect
+    document.body.offsetHeight;
+}
+
 // Initialize the 3D logo when the page loads
 document.addEventListener('DOMContentLoaded', () => {
+    // Reset scroll position immediately
+    resetScrollPosition();
+    
     const container = document.querySelector('.background-logo');
     new InteractiveCrosshairLogo(container);
     
@@ -1703,6 +1717,14 @@ document.addEventListener('DOMContentLoaded', () => {
             if (Math.random() < 0.3) { // 30% chance on scroll
                 createScrollParticles();
             }
+        }, 100);
+    });
+    
+    // Additional scroll reset on window load (fallback)
+    window.addEventListener('load', () => {
+        // Small delay to ensure everything is fully loaded
+        setTimeout(() => {
+            resetScrollPosition();
         }, 100);
     });
     
