@@ -1290,6 +1290,17 @@ nav:hover {
 
 .contact-form {
     flex: 1;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 16px;
+    padding: 2rem;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+.contact-form:hover {
+    border-color: rgba(255, 119, 0, 0.3);
+    box-shadow: 0 20px 40px rgba(255, 119, 0, 0.1);
 }
 
 .form-group {
@@ -1379,10 +1390,33 @@ nav:hover {
 
 .contact-info {
     flex: 1;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 16px;
+    padding: 2rem;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+.contact-info:hover {
+    border-color: rgba(255, 119, 0, 0.3);
+    box-shadow: 0 20px 40px rgba(255, 119, 0, 0.1);
 }
 
 .contact-method {
     margin-bottom: 1.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 1.5rem;
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: all 0.3s ease;
+}
+
+.contact-method:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 119, 0, 0.2);
+    transform: translateY(-2px);
 }
 
 .contact-icon {

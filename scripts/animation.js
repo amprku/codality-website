@@ -355,7 +355,8 @@ class InteractiveCrosshairLogo {
         const material1 = new THREE.MeshBasicMaterial({ 
             color: 0xffffff,
             transparent: true,
-            opacity: 0.95
+            opacity: 1.0, // Full opacity for maximum visibility
+            side: THREE.DoubleSide // Ensure visibility from both sides
         });
         const mesh1 = new THREE.Mesh(geometry1, material1);
         // Right/Bottom segment
@@ -363,7 +364,8 @@ class InteractiveCrosshairLogo {
         const material2 = new THREE.MeshBasicMaterial({ 
             color: 0xffffff,
             transparent: true,
-            opacity: 0.95
+            opacity: 1.0, // Full opacity for maximum visibility
+            side: THREE.DoubleSide // Ensure visibility from both sides
         });
         const mesh2 = new THREE.Mesh(geometry2, material2);
         // Position segments
@@ -1106,7 +1108,7 @@ class InteractiveCrosshairLogo {
                 if (line) {
                     line.scale.set(1, 1, 1); // Ensure correct final scale
                     line.rotation.z = i === 0 ? 0 : Math.PI / 2;
-                    line.children.forEach(segment => segment.material.opacity = 0.95);
+                    line.children.forEach(segment => segment.material.opacity = 1.0); // Full opacity for maximum visibility
                 }
             });
             
@@ -1222,10 +1224,10 @@ class InteractiveCrosshairLogo {
                     const elementProgress = Math.max(0, Math.min(1, (lineProgress - delay) / (1 - delay)));
                     console.log("Element progress: ", elementProgress);
                     if (elementProgress > 0) {
-                        // Quick opacity jump to final opacity (0.95)
+                        // Quick opacity jump to final opacity (1.0)
                         if (elementProgress < 0.1) {
                             line.children.forEach(segment => {
-                                segment.material.opacity = 0.95;
+                                segment.material.opacity = 1.0;
                             });
                         }
                         
@@ -1253,7 +1255,7 @@ class InteractiveCrosshairLogo {
                                 line.rotation.z = Math.PI / 2; // Vertical
                             }
                             line.children.forEach(segment => {
-                                segment.material.opacity = 0.95; // Match normal state
+                                segment.material.opacity = 1.0; // Match normal state - full opacity
                             });
                         }
                     }
@@ -1429,19 +1431,20 @@ class InteractiveCrosshairLogo {
                 const scale = 1 + pulse;
                 
                 line.scale.set(scale, 1, 1); // Ensure Y and Z scale stay at 1, X pulses from 1
-                // Opacity pulsing for both segments - match loading animation final state
+                // Opacity pulsing for both segments - maintain high visibility
                 line.children.forEach(segment => {
-                    segment.material.opacity = 0.95 + Math.sin(this.time * data.opacitySpeed + data.opacityPhase) * 0.05;
+                    segment.material.opacity = 1.0 + Math.sin(this.time * data.opacitySpeed + data.opacityPhase) * 0.1;
                 });
                 // Color variation based on animation state
                 if (this.isAnimating) {
                     const hue = Math.max(200, Math.min(220, 210 + Math.sin(this.time * 2) * 10)); // Vibrant blue range
                     line.children.forEach(segment => {
-                        segment.material.color.setHSL(hue / 360, 0.8, 0.7);
+                        segment.material.color.setHSL(hue / 360, 0.9, 0.9); // Brighter, more saturated
                     });
                 } else {
                     line.children.forEach(segment => {
-                        segment.material.color.lerp(new THREE.Color(0xffffff), 0.05);
+                        // Keep lines bright white when not animating
+                        segment.material.color.setRGB(1, 1, 1); // Pure white
                     });
                 }
             }
