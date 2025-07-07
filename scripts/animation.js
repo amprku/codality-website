@@ -209,21 +209,21 @@ class InteractiveCrosshairLogo {
         canvas.height = 512;
         const ctx = canvas.getContext('2d');
         
-        // Base color based on ring index
+        // Base color based on ring index - much more subtle
         let baseColor, highlightColor, shadowColor;
         
-        if (ringIndex === 0) { // Outer ring - industrial steel
-            baseColor = '#6a6a6a';
-            highlightColor = '#9a9a9a';
-            shadowColor = '#4a4a4a';
-        } else if (ringIndex === 1) { // Middle ring - brushed aluminum
-            baseColor = '#7a8a9a';
-            highlightColor = '#a0b0c0';
-            shadowColor = '#5a6a7a';
-        } else { // Inner ring - anodized blue
-            baseColor = '#0088cc';
-            highlightColor = '#00a8ff';
-            shadowColor = '#006699';
+        if (ringIndex === 0) { // Outer ring - very subtle steel
+            baseColor = '#3a3a3a';
+            highlightColor = '#5a5a5a';
+            shadowColor = '#2a2a2a';
+        } else if (ringIndex === 1) { // Middle ring - subtle aluminum
+            baseColor = '#4a5a6a';
+            highlightColor = '#6a7a8a';
+            shadowColor = '#3a4a5a';
+        } else { // Inner ring - subtle blue
+            baseColor = '#004466';
+            highlightColor = '#006688';
+            shadowColor = '#003344';
         }
         
         // Create industrial texture pattern
@@ -308,15 +308,15 @@ class InteractiveCrosshairLogo {
         const texture = new THREE.CanvasTexture(canvas);
         const normalMap = new THREE.CanvasTexture(normalCanvas);
         
-        // Create metallic material with proper lighting
+        // Create metallic material with proper lighting - much more subtle
         return new THREE.MeshStandardMaterial({
             map: texture,
             normalMap: normalMap,
-            metalness: 0.8,
-            roughness: 0.3 + Math.random() * 0.2, // Vary roughness for each segment
+            metalness: 0.6,
+            roughness: 0.5 + Math.random() * 0.3, // More rough for subtlety
             transparent: true,
-            opacity: 0.9,
-            envMapIntensity: 0.7
+            opacity: 0.4, // Much lower opacity
+            envMapIntensity: 0.3 // Lower environment map intensity
         });
     }
     
@@ -545,26 +545,26 @@ class InteractiveCrosshairLogo {
             this.centerDot.children[1].material.opacity = 0.5;
         }
         
-        // Set rings to zero opacity and scale, but maintain metallic properties
+        // Set rings to zero opacity and scale, but maintain subtle metallic properties
         [this.outerRing, this.middleRing, this.innerRing].forEach((ring, ringIndex) => {
             if (ring) {
                 ring.children.forEach((segment, segmentIndex) => {
                     segment.material.opacity = 0;
                     
-                    // Ensure metallic properties are set from the start
-                    if (ringIndex === 0) { // Outer ring - industrial steel
-                        segment.material.metalness = 0.8;
-                        segment.material.roughness = 0.3 + Math.random() * 0.2;
-                    } else if (ringIndex === 1) { // Middle ring - brushed aluminum
+                    // Ensure subtle metallic properties are set from the start
+                    if (ringIndex === 0) { // Outer ring - very subtle steel
+                        segment.material.metalness = 0.6;
+                        segment.material.roughness = 0.5 + Math.random() * 0.3;
+                    } else if (ringIndex === 1) { // Middle ring - subtle aluminum
+                        segment.material.metalness = 0.5;
+                        segment.material.roughness = 0.6 + Math.random() * 0.3;
+                    } else { // Inner ring - subtle blue
                         segment.material.metalness = 0.7;
-                        segment.material.roughness = 0.4 + Math.random() * 0.2;
-                    } else { // Inner ring - anodized blue
-                        segment.material.metalness = 0.9;
-                        segment.material.roughness = 0.2 + Math.random() * 0.2;
+                        segment.material.roughness = 0.4 + Math.random() * 0.3;
                     }
                     
-                    // Ensure environment map intensity is maintained
-                    segment.material.envMapIntensity = 0.7;
+                    // Ensure lower environment map intensity for subtlety
+                    segment.material.envMapIntensity = 0.3;
                 });
             }
         });
@@ -1006,23 +1006,20 @@ class InteractiveCrosshairLogo {
             this.pointLight.intensity = 1 + Math.sin(this.time * 3) * 0.5;
             this.pointLight.color.setHSL(hue / 360, 0.8, 0.6);
             
-            // Enhanced material animations for industrial look
+            // Subtle material animations for background rings
             this.outerRing.children.forEach((segment, i) => {
-                const grayValue = 0.4 + Math.sin(this.time * 2 + i * 0.5) * 0.1;
-                segment.material.metalness = 0.8 + Math.sin(this.time * 3 + i * 0.3) * 0.1;
-                segment.material.roughness = 0.3 + Math.sin(this.time * 2 + i * 0.4) * 0.1;
+                segment.material.metalness = 0.6 + Math.sin(this.time * 1.5 + i * 0.3) * 0.05;
+                segment.material.roughness = 0.5 + Math.sin(this.time * 1.2 + i * 0.4) * 0.05;
             });
             
             this.middleRing.children.forEach((segment, i) => {
-                const grayValue = 0.5 + Math.sin(this.time * 2 + i * 0.5) * 0.1;
-                segment.material.metalness = 0.7 + Math.sin(this.time * 2.5 + i * 0.3) * 0.1;
-                segment.material.roughness = 0.4 + Math.sin(this.time * 1.8 + i * 0.4) * 0.1;
+                segment.material.metalness = 0.5 + Math.sin(this.time * 1.8 + i * 0.3) * 0.05;
+                segment.material.roughness = 0.6 + Math.sin(this.time * 1.5 + i * 0.4) * 0.05;
             });
             
             this.innerRing.children.forEach((segment, i) => {
-                const blueHue = 200 + Math.sin(this.time * 2 + i * 0.5) * 10;
-                segment.material.metalness = 0.9 + Math.sin(this.time * 2.2 + i * 0.3) * 0.05;
-                segment.material.roughness = 0.2 + Math.sin(this.time * 2.8 + i * 0.4) * 0.1;
+                segment.material.metalness = 0.7 + Math.sin(this.time * 1.3 + i * 0.3) * 0.05;
+                segment.material.roughness = 0.4 + Math.sin(this.time * 1.6 + i * 0.4) * 0.05;
             });
             
         } 
@@ -1126,23 +1123,23 @@ class InteractiveCrosshairLogo {
             [this.outerRing, this.middleRing, this.innerRing].forEach((ring, ringIndex) => {
                 if (ring) {
                     ring.children.forEach((segment, segmentIndex) => {
-                        segment.material.opacity = 1.0;
+                        segment.material.opacity = 0.4; // Much lower final opacity
                         segment.scale.set(1, 1, 1);
                         
-                        // Ensure final metallic properties are set
-                        if (ringIndex === 0) { // Outer ring - industrial steel
-                            segment.material.metalness = 0.8;
-                            segment.material.roughness = 0.3 + Math.random() * 0.2;
-                        } else if (ringIndex === 1) { // Middle ring - brushed aluminum
+                        // Ensure final subtle metallic properties are set
+                        if (ringIndex === 0) { // Outer ring - very subtle steel
+                            segment.material.metalness = 0.6;
+                            segment.material.roughness = 0.5 + Math.random() * 0.3;
+                        } else if (ringIndex === 1) { // Middle ring - subtle aluminum
+                            segment.material.metalness = 0.5;
+                            segment.material.roughness = 0.6 + Math.random() * 0.3;
+                        } else { // Inner ring - subtle blue
                             segment.material.metalness = 0.7;
-                            segment.material.roughness = 0.4 + Math.random() * 0.2;
-                        } else { // Inner ring - anodized blue
-                            segment.material.metalness = 0.9;
-                            segment.material.roughness = 0.2 + Math.random() * 0.2;
+                            segment.material.roughness = 0.4 + Math.random() * 0.3;
                         }
                         
-                        // Ensure environment map intensity is maintained
-                        segment.material.envMapIntensity = 0.7;
+                        // Ensure lower environment map intensity for subtlety
+                        segment.material.envMapIntensity = 0.3;
                     });
                 }
             });
@@ -1285,37 +1282,37 @@ class InteractiveCrosshairLogo {
             // });
         }
         
-        // Phase 4: Rings fade in (65-100% of total time)
+        // Phase 4: Rings fade in (65-100% of total time) - much more subtle
         if (progress > 0.65) {
             const ringProgress = (progress - 0.65) / 0.35;
             const easeInOut = ringProgress < 0.5 ? 
                 2 * ringProgress * ringProgress : 
                 1 - Math.pow(-2 * ringProgress + 2, 3) / 2;
             
-            // Animate rings in sequence
+            // Animate rings in sequence with much lower opacity
             [this.innerRing, this.middleRing, this.outerRing].forEach((ring, index) => {
                 if (ring) {
                     const delay = index * 0.1;
                     const elementProgress = Math.max(0, Math.min(1, (ringProgress - delay) / (1 - delay)));
                     if (elementProgress > 0) {
-                        const opacity = easeInOut * elementProgress;
+                        const opacity = easeInOut * elementProgress * 0.4; // Much lower final opacity
                         ring.children.forEach((segment, segmentIndex) => {
                             segment.material.opacity = opacity;
                             
-                            // Maintain metallic properties during animation
-                            if (index === 0) { // Outer ring - industrial steel
-                                segment.material.metalness = 0.8;
-                                segment.material.roughness = 0.3 + Math.random() * 0.2;
-                            } else if (index === 1) { // Middle ring - brushed aluminum
+                            // Maintain subtle metallic properties during animation
+                            if (index === 0) { // Outer ring - very subtle steel
+                                segment.material.metalness = 0.6;
+                                segment.material.roughness = 0.5 + Math.random() * 0.3;
+                            } else if (index === 1) { // Middle ring - subtle aluminum
+                                segment.material.metalness = 0.5;
+                                segment.material.roughness = 0.6 + Math.random() * 0.3;
+                            } else { // Inner ring - subtle blue
                                 segment.material.metalness = 0.7;
-                                segment.material.roughness = 0.4 + Math.random() * 0.2;
-                            } else { // Inner ring - anodized blue
-                                segment.material.metalness = 0.9;
-                                segment.material.roughness = 0.2 + Math.random() * 0.2;
+                                segment.material.roughness = 0.4 + Math.random() * 0.3;
                             }
                             
-                            // Ensure environment map intensity is maintained
-                            segment.material.envMapIntensity = 0.7;
+                            // Ensure lower environment map intensity for subtlety
+                            segment.material.envMapIntensity = 0.3;
                         });
                         
                         // Add subtle rotation during entrance
