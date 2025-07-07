@@ -1,0 +1,14 @@
+User-agent: *
+Allow: /
+
+# Disallow admin or private areas (if any)
+Disallow: /admin/
+Disallow: /private/
+Disallow: /.firebase/
+Disallow: /.git/
+
+# Sitemap location
+Sitemap: https://codality.com/sitemap.xml
+
+# Crawl delay (optional - helps with server load)
+Crawl-delay: 1 
