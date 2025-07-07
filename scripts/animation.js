@@ -1643,7 +1643,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize scroll animations
     const scrollAnimator = new ScrollAnimator();
     
-    // Form handling
+    // Form handling with Formspree
     const contactForm = document.getElementById('contactForm');
     if (contactForm) {
         contactForm.addEventListener('submit', function(e) {
@@ -1651,15 +1651,90 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // Get form data
             const formData = new FormData(this);
-            const data = Object.fromEntries(formData);
+            const submitButton = this.querySelector('.submit-btn');
+            const originalButtonText = submitButton.textContent;
             
-            // Here you would typically send the data to your server
-            console.log('Form submitted:', data);
+            // Show loading state
+            submitButton.textContent = 'Sending...';
+            submitButton.disabled = true;
             
-            // Show success message
-            alert('Thanks for reaching out! We\'ll get back to you soon.');
-            this.reset();
+            fetch('https://formspree.io/f/xblyvloo', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    // Success
+                    showFormMessage('Message sent successfully! We\'ll get back to you soon.', 'success');
+                    contactForm.reset();
+                } else {
+                    // Error
+                    showFormMessage('Failed to send message. Please try again or email us directly.', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showFormMessage('Network error. Please try again or email us directly.', 'error');
+            })
+            .finally(() => {
+                // Reset button
+                submitButton.textContent = originalButtonText;
+                submitButton.disabled = false;
+            });
         });
+    }
+    
+    // Show form success/error messages
+    function showFormMessage(message, type) {
+        // Remove existing messages
+        const existingMessage = document.querySelector('.form-message');
+        if (existingMessage) {
+            existingMessage.remove();
+        }
+        
+        // Create message element
+        const messageElement = document.createElement('div');
+        messageElement.className = `form-message form-message-${type}`;
+        messageElement.textContent = message;
+        
+        // Add styles
+        messageElement.style.cssText = `
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 8px;
+            font-weight: 500;
+            text-align: center;
+            animation: slideIn 0.3s ease-out;
+        `;
+        
+        if (type === 'success') {
+            messageElement.style.backgroundColor = 'rgba(76, 175, 80, 0.1)';
+            messageElement.style.color = '#4caf50';
+            messageElement.style.border = '1px solid rgba(76, 175, 80, 0.3)';
+        } else {
+            messageElement.style.backgroundColor = 'rgba(244, 67, 54, 0.1)';
+            messageElement.style.color = '#f44336';
+            messageElement.style.border = '1px solid rgba(244, 67, 54, 0.3)';
+        }
+        
+        // Insert after form
+        const contactForm = document.getElementById('contactForm');
+        contactForm.parentNode.insertBefore(messageElement, contactForm.nextSibling);
+        
+        // Auto-remove after 5 seconds
+        setTimeout(() => {
+            if (messageElement.parentNode) {
+                messageElement.style.animation = 'slideOut 0.3s ease-in';
+                setTimeout(() => {
+                    if (messageElement.parentNode) {
+                        messageElement.remove();
+                    }
+                }, 300);
+            }
+        }, 5000);
     }
     
     // Hamburger menu functionality
@@ -1758,6 +1833,28 @@ document.addEventListener('DOMContentLoaded', () => {
                     100% {
                         transform: translateY(-50px) scale(0);
                         opacity: 0;
+                    }
+                }
+                
+                @keyframes slideIn {
+                    from {
+                        opacity: 0;
+                        transform: translateY(-10px);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translateY(0);
+                    }
+                }
+                
+                @keyframes slideOut {
+                    from {
+                        opacity: 1;
+                        transform: translateY(0);
+                    }
+                    to {
+                        opacity: 0;
+                        transform: translateY(-10px);
                     }
                 }
             `;
